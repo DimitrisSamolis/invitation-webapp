@@ -1,0 +1,93 @@
+@use '@angular/material' as mat;
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.mat-toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.invitation-card {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.form-container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.error-message {
+  color: #f44336;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.success-message {
+  color: #4caf50;
+  font-size: 14px;
+  padding: 10px;
+  background: #e8f5e9;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+// Theme colors
+.theme-elegant {
+  --primary-color: #1a237e;
+  --accent-color: #c5cae9;
+}
+
+.theme-modern {
+  --primary-color: #00695c;
+  --accent-color: #b2dfdb;
+}
+
+.theme-romantic {
+  --primary-color: #880e4f;
+  --accent-color: #f8bbd9;
+}
+
+.theme-festive {
+  --primary-color: #b71c1c;
+  --accent-color: #ffcdd2;
+}
