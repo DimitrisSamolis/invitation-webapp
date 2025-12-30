@@ -13,9 +13,10 @@ const guestSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
-    lowercase: true
+    lowercase: true,
+    default: ''
   },
   phone: {
     type: String,

@@ -51,7 +51,12 @@ const invitationSchema = new mongoose.Schema({
     primaryColor: String,
     accentColor: String,
     fontFamily: String,
-    backgroundImage: String
+    backgroundImage: String,
+    animation: {
+      type: String,
+      enum: ['confetti', 'hearts', 'balloons', 'sparkles', 'stars', 'fireworks', 'none'],
+      default: 'none'
+    }
   },
   hostName: {
     type: String,

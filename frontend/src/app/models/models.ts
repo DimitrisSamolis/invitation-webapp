@@ -14,6 +14,7 @@ export interface Invitation {
     accentColor?: string;
     fontFamily?: string;
     backgroundImage?: string;
+    animation?: 'confetti' | 'hearts' | 'balloons' | 'sparkles' | 'stars' | 'fireworks' | 'none';
   };
   hostName: string;
   hostContact?: string;

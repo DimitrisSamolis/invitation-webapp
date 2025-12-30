@@ -45,7 +45,6 @@ router.get('/:id', auth, async (req, res) => {
 // Submit RSVP (public)
 router.post('/rsvp/:invitationId', [
   body('name').trim().notEmpty().withMessage('Name is required'),
-  body('email').isEmail().withMessage('Valid email is required'),
   body('rsvpStatus').isIn(['confirmed', 'declined']).withMessage('Invalid RSVP status')
 ], async (req, res) => {
   try {
@@ -67,11 +66,14 @@ router.post('/rsvp/:invitationId', [
       return res.status(400).json({ message: 'RSVP deadline has passed' });
     }
 
-    // Check if guest already RSVPd
-    const existingGuest = await Guest.findOne({ 
-      invitationId, 
-      email: req.body.email.toLowerCase() 
-    });
+    // Check if guest already RSVPd (only if email provided)
+    let existingGuest = null;
+    if (req.body.email) {
+      existingGuest = await Guest.findOne({ 
+        invitationId, 
+        email: req.body.email.toLowerCase() 
+      });
+    }
     
     if (existingGuest) {
       // Update existing RSVP

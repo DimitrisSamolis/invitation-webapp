@@ -76,7 +76,7 @@ import { Invitation } from '../../../models/models';
             </ng-container>
 
             <ng-container matColumnDef="venue">
-              <th mat-header-cell *matHeaderCellDef>Venue</th>
+              <th mat-header-cell *matHeaderCellDef>Address</th>
               <td mat-cell *matCellDef="let inv">{{ inv.venue }}</td>
             </ng-container>
 
