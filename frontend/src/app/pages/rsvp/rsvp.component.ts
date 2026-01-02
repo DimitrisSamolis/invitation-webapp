@@ -45,7 +45,7 @@ import { Invitation } from '../../models/models';
           <mat-card-content>
             <mat-icon class="success-icon">check_circle</mat-icon>
             <h2>Thank You!</h2>
-            <p>Your RSVP has been submitted successfully.</p>
+            <p>Your Response has been submitted successfully.</p>
             <a mat-raised-button color="primary" [routerLink]="['/invitation', invitation._id]">
               View Invitation
             </a>
@@ -57,7 +57,7 @@ import { Invitation } from '../../models/models';
         <mat-card>
           <mat-card-header>
             <mat-icon mat-card-avatar>mail</mat-icon>
-            <mat-card-title>RSVP</mat-card-title>
+            <mat-card-title>Respond</mat-card-title>
             <mat-card-subtitle>{{ invitation.title }}</mat-card-subtitle>
           </mat-card-header>
           

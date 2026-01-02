@@ -47,7 +47,7 @@ import { Guest } from '../../../models/models';
           <mat-card-content>
             <mat-icon>people_outline</mat-icon>
             <h2>No Guests Yet</h2>
-            <p>Guests will appear here once they RSVP to your invitation</p>
+            <p>Guests will appear here once they respond to your invitation</p>
           </mat-card-content>
         </mat-card>
       } @else {

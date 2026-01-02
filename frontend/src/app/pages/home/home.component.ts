@@ -95,7 +95,7 @@ import { DatePipe, TitleCasePipe } from '@angular/common';
             </div>
             <div class="feature-card">
               <mat-icon>how_to_reg</mat-icon>
-              <h3>RSVP Tracking</h3>
+              <h3>Response Tracking</h3>
               <p>Track guest responses in real-time</p>
             </div>
           </div>

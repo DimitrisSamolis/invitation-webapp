@@ -263,16 +263,16 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
                 </mat-form-field>
               </div>
 
-              <!-- RSVP Settings -->
-              <h3 class="section-title">RSVP Settings</h3>
+              <!-- Respond Settings -->
+              <h3 class="section-title">Respond Settings</h3>
               
               <div class="form-row two-col">
                 <mat-form-field appearance="outline">
-                  <mat-label>RSVP Deadline</mat-label>
+                  <mat-label>Respond Deadline</mat-label>
                   <input matInput [matDatepicker]="rsvpPicker" formControlName="rsvpDeadline">
                   <mat-datepicker-toggle matSuffix [for]="rsvpPicker"></mat-datepicker-toggle>
                   <mat-datepicker #rsvpPicker></mat-datepicker>
-                  <mat-hint>Guests won't be able to RSVP after this date</mat-hint>
+                  <mat-hint>Guests won't be able to respond after this date</mat-hint>
                 </mat-form-field>
 
                 <div class="toggle-field">
@@ -391,19 +391,13 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
               <button mat-icon-button 
                 [class.active]="previewDevice === 'desktop'" 
                 (click)="setPreviewDevice('desktop')"
-                matTooltip="Desktop">
-                <mat-icon>desktop_windows</mat-icon>
-              </button>
-              <button mat-icon-button 
-                [class.active]="previewDevice === 'tablet'" 
-                (click)="setPreviewDevice('tablet')"
-                matTooltip="Tablet">
-                <mat-icon>tablet</mat-icon>
+                matTooltip="Desktop / Laptop">
+                <mat-icon>laptop</mat-icon>
               </button>
               <button mat-icon-button 
                 [class.active]="previewDevice === 'phone'" 
                 (click)="setPreviewDevice('phone')"
-                matTooltip="Phone">
+                matTooltip="Mobile">
                 <mat-icon>smartphone</mat-icon>
               </button>
             </div>
@@ -526,7 +520,7 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
                 <div class="preview-rsvp-cta">
                   <button mat-raised-button class="preview-rsvp-button" disabled>
                     <mat-icon>how_to_reg</mat-icon>
-                    RSVP Now
+                    Respond Now
                   </button>
                   <p class="preview-rsvp-hint">Click to let us know if you'll be attending</p>
                 </div>
@@ -660,98 +654,80 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 20px;
-      background: #e0e0e0;
+      padding: 16px;
+      background: #1a1a2e;
       transition: all 0.3s ease;
     }
 
     .preview-container.device-desktop {
-      padding: 20px;
-    }
-
-    .preview-container.device-tablet {
-      padding: 30px;
+      padding: 16px;
     }
 
     .preview-container.device-phone {
-      padding: 40px;
+      padding: 24px 40px;
     }
 
     /* Device Frames */
     .device-frame {
-      background: #1a1a1a;
-      border-radius: 20px;
-      padding: 12px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      background: #0d0d0d;
+      border-radius: 16px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
       transition: all 0.3s ease;
+      overflow: hidden;
     }
 
     .device-frame-desktop {
       width: 100%;
       max-width: 100%;
-      border-radius: 12px;
-      padding: 8px 8px 30px 8px;
-    }
-
-    .device-frame-desktop::after {
-      content: '';
-      display: block;
-      width: 60px;
-      height: 6px;
-      background: #333;
-      border-radius: 3px;
-      margin: 10px auto 0;
-    }
-
-    .device-frame-tablet {
-      width: 768px;
-      max-width: 100%;
-      border-radius: 24px;
-      padding: 16px;
-    }
-
-    .device-frame-tablet::before {
-      content: '';
-      display: block;
-      width: 8px;
-      height: 8px;
-      background: #333;
-      border-radius: 50%;
-      margin: 0 auto 12px;
+      border-radius: 8px;
+      border: 3px solid #2a2a2a;
     }
 
     .device-frame-phone {
       width: 375px;
       max-width: 100%;
-      border-radius: 36px;
-      padding: 12px;
+      border-radius: 40px;
+      padding: 14px;
+      border: 4px solid #2a2a2a;
+      position: relative;
     }
 
     .device-frame-phone::before {
       content: '';
       display: block;
-      width: 80px;
-      height: 24px;
-      background: #1a1a1a;
-      border-radius: 0 0 16px 16px;
-      margin: -12px auto 8px;
-      position: relative;
+      width: 120px;
+      height: 28px;
+      background: #0d0d0d;
+      border-radius: 0 0 20px 20px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 10;
     }
 
+    .device-frame-phone::after {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 80px;
+      background: #2a2a2a;
+      position: absolute;
+      right: -4px;
+      top: 120px;
+      border-radius: 0 4px 4px 0;
+    }
+
     .device-screen {
-      border-radius: 8px;
+      border-radius: 4px;
       overflow: hidden;
       background: white;
     }
 
-    .device-frame-tablet .device-screen {
-      border-radius: 4px;
-    }
-
     .device-frame-phone .device-screen {
-      border-radius: 24px;
-      min-height: 600px;
+      border-radius: 28px;
+      min-height: 667px;
+      overflow-y: auto;
     }
 
     .preview-toggle {
@@ -1074,15 +1050,19 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
       background: rgba(255, 0, 0, 0.8);
     }
 
-    /* Invitation Preview Styles */
+    /* Invitation Preview Styles - Matching Real Invitation */
     .invitation-preview {
       min-height: 100%;
       background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--accent-color, #764ba2) 100%);
-      background-size: auto;
+      background-size: contain;
       background-repeat: repeat;
       background-position: center;
       position: relative;
-      padding: 24px 16px 40px;
+      padding: 20px 20px 40px;
+    }
+
+    .device-phone .invitation-preview {
+      padding: 16px 16px 32px;
     }
 
     .preview-overlay {
@@ -1099,159 +1079,266 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
     .preview-content {
       position: relative;
       z-index: 1;
+      max-width: 700px;
+      margin: 0 auto;
     }
 
     .preview-invitation-header {
       text-align: center;
       color: white;
+      margin-bottom: 40px;
+      padding-top: 20px;
+    }
+
+    .device-phone .preview-invitation-header {
       margin-bottom: 24px;
+      padding-top: 10px;
     }
 
     .preview-event-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       background: rgba(255, 255, 255, 0.2);
-      padding: 8px 16px;
+      padding: 10px 24px;
       border-radius: 50px;
-      font-size: 0.8rem;
-      margin-bottom: 16px;
+      font-size: 0.95rem;
+      margin-bottom: 24px;
       backdrop-filter: blur(10px);
     }
 
+    .device-phone .preview-event-badge {
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+    }
+
     .preview-event-badge mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    .device-phone .preview-event-badge mat-icon {
       font-size: 18px;
       width: 18px;
       height: 18px;
     }
 
     .preview-invitation-header h1 {
-      font-size: 1.6rem;
-      margin: 0 0 10px;
+      font-size: 2.8rem;
+      margin: 0 0 16px;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
       font-weight: 300;
       letter-spacing: 1px;
       line-height: 1.2;
     }
 
+    .device-phone .preview-invitation-header h1 {
+      font-size: 2rem;
+    }
+
     .preview-hosted-by {
-      font-size: 1rem;
+      font-size: 1.2rem;
       opacity: 0.9;
       margin: 0;
     }
 
+    .device-phone .preview-hosted-by {
+      font-size: 1rem;
+    }
+
     .preview-details-card {
       background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      margin: 0 20px 24px;
+    }
+
+    .device-phone .preview-details-card {
+      margin: 0 0 20px;
+      padding: 16px;
       border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      margin-bottom: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     .preview-main-info {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      padding: 12px 0;
+      gap: 24px;
+      padding: 24px 0;
+    }
+
+    .device-phone .preview-main-info {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 16px 0;
     }
 
     .preview-info-block, .preview-venue-section, .preview-deadline-section {
       display: flex;
-      gap: 12px;
+      gap: 16px;
+      padding: 20px 0;
+    }
+
+    .device-phone .preview-info-block,
+    .device-phone .preview-venue-section,
+    .device-phone .preview-deadline-section {
       padding: 14px 0;
+      gap: 12px;
     }
 
     .preview-info-block mat-icon, .preview-venue-section mat-icon, .preview-deadline-section mat-icon {
       color: var(--primary-color, #667eea);
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .device-phone .preview-info-block mat-icon,
+    .device-phone .preview-venue-section mat-icon,
+    .device-phone .preview-deadline-section mat-icon {
       font-size: 22px;
       width: 22px;
       height: 22px;
-      flex-shrink: 0;
     }
 
     .preview-label {
       display: block;
-      font-size: 0.7rem;
+      font-size: 0.8rem;
       color: #888;
       text-transform: uppercase;
       letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .device-phone .preview-label {
+      font-size: 0.7rem;
       margin-bottom: 4px;
     }
 
     .preview-value {
       display: block;
-      font-size: 0.95rem;
+      font-size: 1.15rem;
       color: #333;
       font-weight: 500;
     }
 
+    .device-phone .preview-value {
+      font-size: 0.95rem;
+    }
+
     .preview-venue-name {
+      font-size: 1.25rem;
+    }
+
+    .device-phone .preview-venue-name {
       font-size: 1rem;
     }
 
     .preview-address {
       display: block;
       color: #666;
-      margin-top: 4px;
+      margin-top: 6px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .device-phone .preview-address {
       font-size: 0.85rem;
-      line-height: 1.4;
+      margin-top: 4px;
     }
 
     .preview-map-link {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       color: var(--primary-color, #667eea);
       text-decoration: none;
-      margin-top: 8px;
-      font-size: 0.8rem;
+      margin-top: 12px;
+      font-size: 0.9rem;
       font-weight: 500;
+      cursor: pointer;
+    }
+
+    .preview-map-link:hover {
+      text-decoration: underline;
     }
 
     .preview-map-link mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
     }
 
     .preview-description-section, .preview-additional-info {
+      padding: 24px 0;
+    }
+
+    .device-phone .preview-description-section,
+    .device-phone .preview-additional-info {
       padding: 16px 0;
     }
 
     .preview-description-section h3, .preview-additional-info h3 {
       color: var(--primary-color, #667eea);
-      font-size: 0.85rem;
-      margin: 0 0 8px;
+      font-size: 1rem;
+      margin: 0 0 12px;
       font-weight: 600;
+    }
+
+    .device-phone .preview-description-section h3,
+    .device-phone .preview-additional-info h3 {
+      font-size: 0.9rem;
+      margin: 0 0 8px;
     }
 
     .preview-description-section p, .preview-additional-info p {
       color: #555;
-      line-height: 1.6;
+      line-height: 1.8;
       margin: 0;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       white-space: pre-line;
     }
 
+    .device-phone .preview-description-section p,
+    .device-phone .preview-additional-info p {
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
     .preview-spotify-section {
-      padding: 16px 0;
+      padding: 24px 0;
       text-align: center;
+    }
+
+    .device-phone .preview-spotify-section {
+      padding: 16px 0;
     }
 
     .preview-spotify-section h3 {
       color: var(--primary-color, #667eea);
-      font-size: 0.85rem;
-      margin: 0 0 8px;
+      font-size: 1rem;
+      margin: 0 0 12px;
       font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 8px;
+    }
+
+    .device-phone .preview-spotify-section h3 {
+      font-size: 0.9rem;
     }
 
     .preview-spotify-section p {
       color: #555;
+      font-size: 0.9rem;
+      margin: 0 0 16px;
+    }
+
+    .device-phone .preview-spotify-section p {
       font-size: 0.8rem;
       margin: 0 0 12px;
     }
@@ -1259,15 +1346,26 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
     .preview-spotify-link {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       background: #1DB954;
       color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
+      padding: 12px 24px;
+      border-radius: 25px;
       text-decoration: none;
       font-weight: 500;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .preview-spotify-link:hover {
+      background: #1ed760;
+      transform: scale(1.05);
+    }
+
+    .device-phone .preview-spotify-link {
+      padding: 10px 20px;
+      font-size: 0.8rem;
     }
 
     .preview-deadline {
@@ -1276,25 +1374,56 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
 
     .preview-rsvp-cta {
       text-align: center;
+      padding: 30px 0;
+    }
+
+    .device-phone .preview-rsvp-cta {
       padding: 20px 0;
     }
 
     .preview-rsvp-button {
       background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--accent-color, #764ba2) 100%) !important;
       color: white !important;
+      padding: 16px 48px !important;
+      font-size: 1.2rem !important;
+      border-radius: 50px !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3) !important;
+      transition: all 0.3s ease !important;
+      height: auto !important;
+    }
+
+    .preview-rsvp-button:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4) !important;
+    }
+
+    .device-phone .preview-rsvp-button {
       padding: 12px 32px !important;
       font-size: 1rem !important;
-      border-radius: 50px !important;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
     }
 
     .preview-rsvp-button mat-icon {
+      margin-right: 12px;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .device-phone .preview-rsvp-button mat-icon {
       margin-right: 8px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
     .preview-rsvp-hint {
       color: white;
       opacity: 0.9;
+      margin-top: 16px;
+      font-size: 0.95rem;
+    }
+
+    .device-phone .preview-rsvp-hint {
       margin-top: 12px;
       font-size: 0.8rem;
     }
@@ -1302,13 +1431,22 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
     .preview-contact-section {
       text-align: center;
       color: white;
-      padding: 16px 0;
+      padding: 30px 20px;
+    }
+
+    .device-phone .preview-contact-section {
+      padding: 20px 16px;
     }
 
     .preview-contact-section p {
-      margin: 0 0 12px;
+      margin: 0 0 16px;
       opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    .device-phone .preview-contact-section p {
       font-size: 0.85rem;
+      margin: 0 0 12px;
     }
 
     .preview-contact-info {
@@ -1318,19 +1456,42 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
       flex-wrap: wrap;
     }
 
+    .device-phone .preview-contact-info {
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
     .preview-contact-link {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       background: rgba(255, 255, 255, 0.2);
-      padding: 8px 14px;
-      border-radius: 20px;
+      padding: 12px 24px;
+      border-radius: 50px;
       color: white;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       backdrop-filter: blur(10px);
+      transition: all 0.3s;
+    }
+
+    .preview-contact-link:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .device-phone .preview-contact-link {
+      padding: 10px 20px;
+      font-size: 0.8rem;
     }
 
     .preview-contact-link mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .device-phone .preview-contact-link mat-icon {
       font-size: 16px;
       width: 16px;
       height: 16px;
@@ -1339,7 +1500,6 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
     @media (max-width: 1100px) {
       .form-preview-layout {
         flex-direction: column;
-        background-position: center;
       }
 
       .form-section {
@@ -1366,6 +1526,26 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
       .preview-btn-mobile {
         display: inline-flex;
       }
+
+      .device-selector {
+        display: none;
+      }
+
+      .device-frame {
+        width: 100% !important;
+        border-radius: 0 !important;
+        border: none !important;
+        padding: 0 !important;
+      }
+
+      .device-frame::before,
+      .device-frame::after {
+        display: none !important;
+      }
+
+      .device-screen {
+        border-radius: 0 !important;
+      }
     }
 
     @media (max-width: 600px) {
@@ -1373,13 +1553,8 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
         grid-template-columns: 1fr;
       }
 
-      .preview-main-info {
-        grid-template-columns: 1fr;
-      }
-
-      .invitation-preview {
-        background-repeat: no-repeat;
-        background-position: center;
+      .page-container {
+        padding: 16px;
       }
     }
   `]
@@ -1399,7 +1574,7 @@ export class InvitationFormComponent implements OnInit {
   imagePreview: string | null = null;
   isDragging = false;
   showPreview = true;
-  previewDevice: 'desktop' | 'tablet' | 'phone' = 'desktop';
+  previewDevice: 'desktop' | 'phone' = 'desktop';
   selectedBuiltInTheme: string | null = null;
   private readonly MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -1640,7 +1815,7 @@ export class InvitationFormComponent implements OnInit {
   }
 
   // Set preview device type
-  setPreviewDevice(device: 'desktop' | 'tablet' | 'phone') {
+  setPreviewDevice(device: 'desktop' | 'phone') {
     this.previewDevice = device;
   }
 

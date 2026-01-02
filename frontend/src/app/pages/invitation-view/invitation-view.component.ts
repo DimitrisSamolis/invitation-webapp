@@ -433,7 +433,7 @@ export class RsvpDialogComponent {
                 <div class="deadline-section">
                   <mat-icon>timer</mat-icon>
                   <div>
-                    <span class="label">Please RSVP by</span>
+                    <span class="label">Please Respond by</span>
                     <span class="value deadline">{{ invitation.rsvpDeadline | date:'MMMM d, yyyy' }}</span>
                   </div>
                 </div>
@@ -445,7 +445,7 @@ export class RsvpDialogComponent {
           <div class="rsvp-cta">
             <button mat-raised-button class="rsvp-button" (click)="openRsvpDialog()">
               <mat-icon>how_to_reg</mat-icon>
-              RSVP Now
+              Respond Now
             </button>
             <p class="rsvp-hint">Click to let us know if you'll be attending</p>
           </div>
@@ -534,12 +534,10 @@ export class RsvpDialogComponent {
     .invitation-page {
       min-height: 100vh;
       background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--accent-color, #764ba2) 100%);
-      background-size: auto;
+      background-size: contain;
       background-repeat: repeat;
-      background-position: top left;
-      background-attachment: fixed;
+      background-position: center;
       position: relative;
-      padding: 40px 20px 60px;
     }
     
     .overlay {
@@ -605,7 +603,7 @@ export class RsvpDialogComponent {
       border-radius: 20px;
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      margin-bottom: 24px;
+      margin: 20px;
     }
     
     .main-info {
@@ -831,11 +829,6 @@ export class RsvpDialogComponent {
       .contact-info {
         flex-direction: column;
         align-items: center;
-      }
-      
-      .invitation-page {
-        padding: 20px 16px 40px;
-        background-position: center;
       }
     }
   `]
