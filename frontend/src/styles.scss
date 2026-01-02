@@ -105,6 +105,21 @@ body {
   }
 }
 
+// Invitation Details Dialog panel
+.invitation-details-dialog-panel {
+  max-width: 95vw;
+
+  .mat-mdc-dialog-surface {
+    border-radius: 20px !important;
+    overflow: hidden;
+    padding: 0 !important;
+  }
+
+  .mat-mdc-dialog-container {
+    padding: 0 !important;
+  }
+}
+
 // Mobile responsive utilities
 @media (max-width: 768px) {
   .container {

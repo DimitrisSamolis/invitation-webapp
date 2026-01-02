@@ -3,6 +3,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -22,6 +24,384 @@ import { InvitationService } from '../../../services/invitation.service';
 import { ThemeService } from '../../../services/theme.service';
 import { Theme, Invitation } from '../../../models/models';
 import { AnimationCanvasComponent, AnimationType } from '../../../components/animation-canvas/animation-canvas.component';
+
+// Preview Details Dialog Component
+@Component({
+  selector: 'app-preview-details-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    MatDialogModule,
+    DatePipe,
+    TitleCasePipe
+  ],
+  template: `
+    <div class="details-dialog" [style.--primary-color]="data.primaryColor || '#667eea'"
+         [style.--accent-color]="data.accentColor || '#764ba2'">
+      <button mat-icon-button class="close-btn" mat-dialog-close>
+        <mat-icon>close</mat-icon>
+      </button>
+      
+      <div class="dialog-header">
+        <div class="event-badge">
+          <mat-icon>{{ getEventIcon(data.eventType) }}</mat-icon>
+          <span>{{ data.eventType | titlecase }}</span>
+        </div>
+        <h1>{{ data.title || 'Your Event Title' }}</h1>
+        <p class="hosted-by">Hosted by {{ data.hostName || 'Host Name' }}</p>
+      </div>
+
+      <div class="dialog-content">
+        <!-- Date & Time -->
+        <div class="main-info">
+          <div class="info-block">
+            <mat-icon>event</mat-icon>
+            <div>
+              <span class="label">Date</span>
+              <span class="value">{{ data.eventDate | date:'EEEE, MMMM d, yyyy' }}</span>
+            </div>
+          </div>
+          
+          <div class="info-block">
+            <mat-icon>schedule</mat-icon>
+            <div>
+              <span class="label">Time</span>
+              <span class="value">{{ data.eventTime || 'Time TBD' }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <mat-divider></mat-divider>
+        
+        <!-- Venue -->
+        <div class="venue-section">
+          <mat-icon>location_on</mat-icon>
+          <div>
+            <span class="label">WHERE</span>
+            <span class="value venue-name">{{ data.venue || 'Venue TBD' }}</span>
+            @if (data.venueAddress) {
+              <span class="address">{{ data.venueAddress }}</span>
+            }
+            @if (data.venueMapUrl) {
+              <a [href]="data.venueMapUrl" target="_blank" class="map-link">
+                <mat-icon>map</mat-icon>
+                View on Map
+              </a>
+            }
+          </div>
+        </div>
+        
+        @if (data.dressCode) {
+          <mat-divider></mat-divider>
+          <div class="info-block">
+            <mat-icon>checkroom</mat-icon>
+            <div>
+              <span class="label">Dress Code</span>
+              <span class="value">{{ data.dressCode }}</span>
+            </div>
+          </div>
+        }
+        
+        @if (data.description) {
+          <mat-divider></mat-divider>
+          <div class="description-section">
+            <h3>About This Event</h3>
+            <p>{{ data.description }}</p>
+          </div>
+        }
+        
+        @if (data.additionalInfo) {
+          <mat-divider></mat-divider>
+          <div class="additional-info">
+            <h3>Additional Information</h3>
+            <p>{{ data.additionalInfo }}</p>
+          </div>
+        }
+        
+        @if (data.spotifyPlaylistUrl) {
+          <mat-divider></mat-divider>
+          <div class="spotify-section">
+            <h3><mat-icon>library_music</mat-icon> Event Playlist</h3>
+            <p>Check out our playlist for this event!</p>
+            <a [href]="data.spotifyPlaylistUrl" target="_blank" rel="noopener" class="spotify-link">
+              <mat-icon>play_circle</mat-icon>
+              Open in Spotify
+            </a>
+          </div>
+        }
+        
+        @if (data.rsvpDeadline) {
+          <mat-divider></mat-divider>
+          <div class="deadline-section">
+            <mat-icon>timer</mat-icon>
+            <div>
+              <span class="label">Please Respond by</span>
+              <span class="value deadline">{{ data.rsvpDeadline | date:'MMMM d, yyyy' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="dialog-actions">
+        <button mat-raised-button class="rsvp-button" mat-dialog-close>
+          <mat-icon>how_to_reg</mat-icon>
+          Respond Now
+        </button>
+        <p class="preview-note">This is a preview - guests will see this when they tap the envelope</p>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .details-dialog {
+      padding: 0;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+    }
+
+    .dialog-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+      color: white;
+      padding: 40px 24px 30px;
+      text-align: center;
+    }
+
+    .event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .event-badge mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .dialog-header h1 {
+      font-size: 2rem;
+      margin: 0 0 12px;
+      font-weight: 300;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .hosted-by {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .dialog-content {
+      padding: 24px;
+      background: white;
+    }
+
+    .main-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 16px 0;
+    }
+
+    .info-block, .venue-section, .deadline-section {
+      display: flex;
+      gap: 14px;
+      padding: 16px 0;
+    }
+
+    .info-block mat-icon, .venue-section mat-icon, .deadline-section mat-icon {
+      color: var(--primary-color);
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .label {
+      display: block;
+      font-size: 0.75rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .value {
+      display: block;
+      font-size: 1.1rem;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .venue-name {
+      font-size: 1.15rem;
+    }
+
+    .address {
+      display: block;
+      color: #666;
+      margin-top: 4px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .map-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--primary-color);
+      text-decoration: none;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .map-link mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .description-section, .additional-info {
+      padding: 20px 0;
+    }
+
+    .description-section h3, .additional-info h3 {
+      color: var(--primary-color);
+      font-size: 0.95rem;
+      margin: 0 0 10px;
+      font-weight: 600;
+    }
+
+    .description-section p, .additional-info p {
+      color: #555;
+      line-height: 1.7;
+      margin: 0;
+      white-space: pre-line;
+    }
+
+    .spotify-section {
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    .spotify-section h3 {
+      color: var(--primary-color);
+      font-size: 0.95rem;
+      margin: 0 0 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .spotify-section p {
+      color: #555;
+      margin: 0 0 14px;
+    }
+
+    .spotify-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1DB954;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .spotify-link:hover {
+      background: #1ed760;
+      transform: scale(1.05);
+    }
+
+    .deadline {
+      color: #e91e63 !important;
+    }
+
+    .dialog-actions {
+      padding: 20px 24px 24px;
+      background: #f8f9fa;
+      text-align: center;
+      border-top: 1px solid #eee;
+    }
+
+    .rsvp-button {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%) !important;
+      color: white !important;
+      padding: 14px 40px !important;
+      font-size: 1.1rem !important;
+      border-radius: 50px !important;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2) !important;
+      height: auto !important;
+    }
+
+    .rsvp-button mat-icon {
+      margin-right: 8px;
+    }
+
+    .preview-note {
+      color: #888;
+      font-size: 0.8rem;
+      margin: 16px 0 0;
+      font-style: italic;
+    }
+
+    @media (max-width: 480px) {
+      .dialog-header h1 {
+        font-size: 1.6rem;
+      }
+
+      .main-info {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .dialog-content {
+        padding: 16px;
+      }
+    }
+  `]
+})
+export class PreviewDetailsDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<PreviewDetailsDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) { }
+
+  getEventIcon(eventType: string): string {
+    const icons: Record<string, string> = {
+      wedding: 'favorite',
+      birthday: 'cake',
+      corporate: 'business',
+      party: 'celebration',
+      other: 'event'
+    };
+    return icons[eventType] || 'event';
+  }
+}
 
 @Component({
   selector: 'app-invitation-form',
@@ -46,8 +426,8 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
     MatTabsModule,
     MatDividerModule,
     ClipboardModule,
+    MatDialogModule,
     DatePipe,
-    TitleCasePipe,
     AnimationCanvasComponent
   ],
   template: `
@@ -415,140 +795,161 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
                      [style.background-image]="getPreviewBackgroundImage()">
               
                   <div class="preview-overlay"></div>
-                  <div class="preview-content">
-                    <!-- Header Section -->
-                    <div class="preview-invitation-header">
-                      <div class="preview-event-badge">
-                        <mat-icon>{{ getEventIcon(invitationForm.get('eventType')?.value) }}</mat-icon>
-                        <span>{{ (invitationForm.get('eventType')?.value || 'event') | titlecase }}</span>
-                      </div>
+                  
+                  @if (!previewShowDetails) {
+                    <!-- Envelope View -->
+                    <!-- Floating Header -->
+                    <div class="preview-floating-header">
                       <h1>{{ invitationForm.get('title')?.value || 'Your Event Title' }}</h1>
-                  <p class="preview-hosted-by">Hosted by {{ invitationForm.get('hostName')?.value || 'Host Name' }}</p>
-                </div>
-                
-                <!-- Main Details Card -->
-                <div class="preview-details-card">
-                  <!-- Date & Time -->
-                  <div class="preview-main-info">
-                    <div class="preview-info-block">
-                      <mat-icon>event</mat-icon>
-                      <div>
-                        <span class="preview-label">Date</span>
-                        <span class="preview-value">{{ invitationForm.get('eventDate')?.value | date:'EEEE, MMMM d, yyyy' }}</span>
-                      </div>
+                      <p class="preview-hosted-by">{{ invitationForm.get('hostName')?.value || 'Host Name' }}</p>
                     </div>
-                    
-                    <div class="preview-info-block">
-                      <mat-icon>schedule</mat-icon>
-                      <div>
-                        <span class="preview-label">Time</span>
-                        <span class="preview-value">{{ invitationForm.get('eventTime')?.value || 'Event Time' }}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <mat-divider></mat-divider>
-                  
-                  <!-- Venue -->
-                  <div class="preview-venue-section">
-                    <mat-icon>location_on</mat-icon>
-                    <div>
-                      <span class="preview-label">Venue</span>
-                      <span class="preview-value preview-venue-name">{{ invitationForm.get('venue')?.value || 'Venue Name' }}</span>
-                      <span class="preview-address">{{ invitationForm.get('venueAddress')?.value || 'Venue Address' }}</span>
-                      @if (invitationForm.get('venueMapUrl')?.value) {
-                        <a class="preview-map-link">
-                          <mat-icon>map</mat-icon>
-                          View on Map
-                        </a>
-                      }
-                    </div>
-                  </div>
-                  
-                  @if (invitationForm.get('dressCode')?.value) {
-                    <mat-divider></mat-divider>
-                    <div class="preview-info-block">
-                      <mat-icon>checkroom</mat-icon>
-                      <div>
-                        <span class="preview-label">Dress Code</span>
-                        <span class="preview-value">{{ invitationForm.get('dressCode')?.value }}</span>
-                      </div>
-                    </div>
-                  }
-                  
-                  @if (invitationForm.get('description')?.value) {
-                    <mat-divider></mat-divider>
-                    <div class="preview-description-section">
-                      <h3>About This Event</h3>
-                      <p>{{ invitationForm.get('description')?.value }}</p>
-                    </div>
-                  }
-                  
-                  @if (invitationForm.get('additionalInfo')?.value) {
-                    <mat-divider></mat-divider>
-                    <div class="preview-additional-info">
-                      <h3>Additional Information</h3>
-                      <p>{{ invitationForm.get('additionalInfo')?.value }}</p>
-                    </div>
-                  }
-                  
-                  @if (invitationForm.get('spotifyPlaylistUrl')?.value) {
-                    <mat-divider></mat-divider>
-                    <div class="preview-spotify-section">
-                      <h3><mat-icon>library_music</mat-icon> Event Playlist</h3>
-                      <p>Check out our playlist for this event!</p>
-                      <a class="preview-spotify-link">
-                        <mat-icon>play_circle</mat-icon>
-                        Open in Spotify
-                      </a>
-                    </div>
-                  }
-                  
-                  @if (invitationForm.get('rsvpDeadline')?.value) {
-                    <mat-divider></mat-divider>
-                    <div class="preview-deadline-section">
-                      <mat-icon>timer</mat-icon>
-                      <div>
-                        <span class="preview-label">Please RSVP by</span>
-                        <span class="preview-value preview-deadline">{{ invitationForm.get('rsvpDeadline')?.value | date:'MMMM d, yyyy' }}</span>
-                      </div>
-                    </div>
-                  }
-                </div>
 
-                <!-- RSVP Button -->
-                <div class="preview-rsvp-cta">
-                  <button mat-raised-button class="preview-rsvp-button" disabled>
-                    <mat-icon>how_to_reg</mat-icon>
-                    Respond Now
-                  </button>
-                  <p class="preview-rsvp-hint">Click to let us know if you'll be attending</p>
-                </div>
-                
-                <!-- Contact Section -->
-                @if (invitationForm.get('hostContact')?.value || invitationForm.get('hostEmail')?.value) {
-                  <div class="preview-contact-section">
-                    <p>Questions? Contact the host:</p>
-                    <div class="preview-contact-info">
-                      @if (invitationForm.get('hostContact')?.value) {
-                        <span class="preview-contact-link">
-                          <mat-icon>phone</mat-icon>
-                          {{ invitationForm.get('hostContact')?.value }}
-                        </span>
-                      }
-                      @if (invitationForm.get('hostEmail')?.value) {
-                        <span class="preview-contact-link">
-                          <mat-icon>email</mat-icon>
-                          {{ invitationForm.get('hostEmail')?.value }}
-                        </span>
-                      }
+                    <!-- Animated Envelope -->
+                    <div class="preview-envelope-container" (click)="togglePreviewDetails()">
+                      <div class="preview-envelope bounce">
+                        <div class="preview-envelope-back"></div>
+                        <div class="preview-envelope-front">
+                          <div class="preview-envelope-flap"></div>
+                          <div class="preview-envelope-letter">
+                            <div class="preview-letter-content">
+                              <mat-icon class="preview-letter-icon">{{ getEventIcon(invitationForm.get('eventType')?.value) }}</mat-icon>
+                              <span class="preview-letter-text">You're Invited!</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="preview-envelope-shadow"></div>
+                      </div>
+                      <p class="preview-tap-hint">
+                        <mat-icon>touch_app</mat-icon>
+                        Tap to open
+                      </p>
                     </div>
-                  </div>
-                }
-               
-                  </div>
+
+                    <!-- Quick Info Pills -->
+                    <div class="preview-quick-info">
+                      <div class="preview-info-pill">
+                        <mat-icon>event</mat-icon>
+                        <span>{{ invitationForm.get('eventDate')?.value | date:'MMM d, yyyy' }}</span>
+                      </div>
+                      <div class="preview-info-pill">
+                        <mat-icon>schedule</mat-icon>
+                        <span>{{ invitationForm.get('eventTime')?.value || 'Time' }}</span>
+                      </div>
+                    </div>
+                  } @else {
+                    <!-- Inline Details View -->
+                    <div class="preview-details-inline">
+                      <button mat-icon-button class="preview-details-close" (click)="closePreviewDetails()">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                      
+                      <div class="preview-details-header">
+                        <div class="preview-event-badge">
+                          <mat-icon>{{ getEventIcon(invitationForm.get('eventType')?.value) }}</mat-icon>
+                          <span>{{ invitationForm.get('eventType')?.value || 'Event' }}</span>
+                        </div>
+                        <h2>{{ invitationForm.get('title')?.value || 'Your Event Title' }}</h2>
+                        <p>Hosted by {{ invitationForm.get('hostName')?.value || 'Host Name' }}</p>
+                      </div>
+
+                      <div class="preview-details-content">
+                        <div class="preview-details-row">
+                          <mat-icon>event</mat-icon>
+                          <div>
+                            <span class="preview-details-label">Date</span>
+                            <span class="preview-details-value">{{ invitationForm.get('eventDate')?.value | date:'EEEE, MMMM d, yyyy' }}</span>
+                          </div>
+                        </div>
+                        
+                        <div class="preview-details-row">
+                          <mat-icon>schedule</mat-icon>
+                          <div>
+                            <span class="preview-details-label">Time</span>
+                            <span class="preview-details-value">{{ invitationForm.get('eventTime')?.value || 'Time TBD' }}</span>
+                          </div>
+                        </div>
+
+                        <mat-divider></mat-divider>
+                        
+                        <div class="preview-details-row">
+                          <mat-icon>location_on</mat-icon>
+                          <div>
+                            <span class="preview-details-label">Where</span>
+                            <span class="preview-details-value">{{ invitationForm.get('venue')?.value || 'Venue TBD' }}</span>
+                            @if (invitationForm.get('venueAddress')?.value) {
+                              <span class="preview-details-address">{{ invitationForm.get('venueAddress')?.value }}</span>
+                            }
+                            @if (invitationForm.get('venueMapUrl')?.value) {
+                              <a class="preview-map-link">
+                                <mat-icon>map</mat-icon>
+                                View on Map
+                              </a>
+                            }
+                          </div>
+                        </div>
+                        
+                        @if (invitationForm.get('dressCode')?.value) {
+                          <mat-divider></mat-divider>
+                          <div class="preview-details-row">
+                            <mat-icon>checkroom</mat-icon>
+                            <div>
+                              <span class="preview-details-label">Dress Code</span>
+                              <span class="preview-details-value">{{ invitationForm.get('dressCode')?.value }}</span>
+                            </div>
+                          </div>
+                        }
+                        
+                        @if (invitationForm.get('description')?.value) {
+                          <mat-divider></mat-divider>
+                          <div class="preview-details-section">
+                            <h4>About This Event</h4>
+                            <p>{{ invitationForm.get('description')?.value }}</p>
+                          </div>
+                        }
+
+                        @if (invitationForm.get('additionalInfo')?.value) {
+                          <mat-divider></mat-divider>
+                          <div class="preview-details-section">
+                            <h4>Additional Information</h4>
+                            <p>{{ invitationForm.get('additionalInfo')?.value }}</p>
+                          </div>
+                        }
+
+                        @if (invitationForm.get('spotifyPlaylistUrl')?.value) {
+                          <mat-divider></mat-divider>
+                          <div class="preview-details-spotify">
+                            <h4><mat-icon>library_music</mat-icon> Event Playlist</h4>
+                            <p>Check out our playlist for this event!</p>
+                            <a class="preview-spotify-link">
+                              <mat-icon>play_circle</mat-icon>
+                              Open in Spotify
+                            </a>
+                          </div>
+                        }
+                        
+                        @if (invitationForm.get('rsvpDeadline')?.value) {
+                          <mat-divider></mat-divider>
+                          <div class="preview-details-row deadline">
+                            <mat-icon>timer</mat-icon>
+                            <div>
+                              <span class="preview-details-label">Please Respond by</span>
+                              <span class="preview-details-value">{{ invitationForm.get('rsvpDeadline')?.value | date:'MMMM d, yyyy' }}</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+
+                      <div class="preview-details-actions">
+                        <button mat-raised-button class="preview-rsvp-btn">
+                          <mat-icon>how_to_reg</mat-icon>
+                          Respond Now
+                        </button>
+                        <p class="preview-details-note">This is how guests will see the details</p>
+                      </div>
+                    </div>
+                  }
               
-                  <!-- Canvas Animation Layer (rendered in front) -->
+                  <!-- Canvas Animation Layer -->
                   @if (getSelectedTheme()?.animation) {
                     <app-animation-canvas 
                       [animation]="getSelectedTheme()!.animation!"
@@ -649,22 +1050,14 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
     }
 
     .preview-container {
-      height: 75vh;
+      height: 80vh;
       overflow-y: auto;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 16px;
       background: #1a1a2e;
       transition: all 0.3s ease;
-    }
-
-    .preview-container.device-desktop {
       padding: 16px;
-    }
-
-    .preview-container.device-phone {
-      padding: 24px 40px;
     }
 
     /* Device Frames */
@@ -1052,13 +1445,16 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
 
     /* Invitation Preview Styles - Matching Real Invitation */
     .invitation-preview {
-      min-height: 100%;
+      min-height: 100vh;
       background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--accent-color, #764ba2) 100%);
       background-size: contain;
       background-repeat: repeat;
       background-position: center;
       position: relative;
-      padding: 20px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .device-phone .invitation-preview {
@@ -1497,6 +1893,552 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
       height: 16px;
     }
 
+    /* Floating Header for Envelope View */
+    .preview-floating-header {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+      padding-top: 20px;
+    }
+
+    .device-phone .preview-floating-header {
+      margin-bottom: 24px;
+      padding-top: 16px;
+    }
+
+    .preview-floating-header h1 {
+      font-size: 2.2rem;
+      margin: 0 0 8px;
+      font-weight: 300;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+      letter-spacing: 1px;
+    }
+
+    .device-phone .preview-floating-header h1 {
+      font-size: 1.6rem;
+    }
+
+    .preview-floating-header .preview-hosted-by {
+      font-size: 1rem;
+      opacity: 0.9;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+      margin: 0;
+    }
+
+    .device-phone .preview-floating-header .preview-hosted-by {
+      font-size: 0.85rem;
+    }
+
+    /* Envelope Container */
+    .preview-envelope-container {
+      position: relative;
+      z-index: 2;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    .preview-envelope {
+      position: relative;
+      width: 180px;
+      height: 126px;
+      perspective: 1000px;
+      transition: transform 0.3s ease;
+    }
+
+    .device-phone .preview-envelope {
+      width: 150px;
+      height: 105px;
+    }
+
+    .preview-envelope:hover {
+      transform: scale(1.05);
+    }
+
+    .preview-envelope.bounce {
+      animation: previewEnvelopeBounce 2s ease-in-out infinite;
+    }
+
+    @keyframes previewEnvelopeBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .preview-envelope-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #f5f5f5 0%, #e8e8e8 100%);
+      border-radius: 8px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .preview-envelope-front {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .preview-envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--accent-color, #764ba2) 100%);
+      clip-path: polygon(0 0, 50% 100%, 100% 0);
+      transform-origin: top center;
+      z-index: 2;
+    }
+
+    .device-phone .preview-envelope-flap {
+      height: 35px;
+    }
+
+    .preview-envelope-letter {
+      position: absolute;
+      top: 28px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .device-phone .preview-envelope-letter {
+      top: 24px;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+    }
+
+    .preview-letter-content {
+      text-align: center;
+      color: var(--primary-color, #667eea);
+    }
+
+    .preview-letter-icon {
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
+      margin-bottom: 4px;
+    }
+
+    .device-phone .preview-letter-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    .preview-letter-text {
+      display: block;
+      font-weight: 600;
+      font-size: 0.7rem;
+    }
+
+    .device-phone .preview-letter-text {
+      font-size: 0.6rem;
+    }
+
+    .preview-envelope-shadow {
+      position: absolute;
+      bottom: -15px;
+      left: 10%;
+      width: 80%;
+      height: 15px;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%);
+    }
+
+    .preview-tap-hint {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      font-size: 0.85rem;
+      margin-top: 24px;
+      opacity: 0.9;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+      animation: previewPulse 2s ease-in-out infinite;
+    }
+
+    .device-phone .preview-tap-hint {
+      font-size: 0.75rem;
+      margin-top: 20px;
+    }
+
+    .preview-tap-hint mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    @keyframes previewPulse {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Quick Info Pills */
+    .preview-quick-info {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 0 16px;
+    }
+
+    .device-phone .preview-quick-info {
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .preview-info-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 10px 16px;
+      border-radius: 50px;
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .device-phone .preview-info-pill {
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      gap: 5px;
+    }
+
+    .preview-info-pill mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .device-phone .preview-info-pill mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Inline Details View Styles */
+    .preview-details-inline {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      background: white;
+      z-index: 10;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .device-phone .preview-details-inline {
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      border-radius: 12px;
+    }
+
+    .preview-details-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 11;
+      background: rgba(0, 0, 0, 0.3) !important;
+      color: white !important;
+    }
+
+    .preview-details-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+      color: white;
+      padding: 32px 20px 24px;
+      text-align: center;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .device-phone .preview-details-header {
+      padding: 28px 16px 20px;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .preview-event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      margin-bottom: 12px;
+      backdrop-filter: blur(10px);
+      text-transform: capitalize;
+    }
+
+    .preview-event-badge mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .preview-details-header h2 {
+      font-size: 1.6rem;
+      margin: 0 0 8px;
+      font-weight: 300;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .device-phone .preview-details-header h2 {
+      font-size: 1.3rem;
+    }
+
+    .preview-details-header p {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .device-phone .preview-details-header p {
+      font-size: 0.85rem;
+    }
+
+    .preview-details-content {
+      padding: 16px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .device-phone .preview-details-content {
+      padding: 12px;
+    }
+
+    .preview-details-row {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .device-phone .preview-details-row {
+      gap: 10px;
+      padding: 10px 0;
+    }
+
+    .preview-details-row mat-icon {
+      color: var(--primary-color);
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .device-phone .preview-details-row mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .preview-details-row.deadline mat-icon {
+      color: #e91e63;
+    }
+
+    .preview-details-row.deadline .preview-details-value {
+      color: #e91e63;
+    }
+
+    .preview-details-label {
+      display: block;
+      font-size: 0.65rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .preview-details-value {
+      display: block;
+      font-size: 0.95rem;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .device-phone .preview-details-value {
+      font-size: 0.85rem;
+    }
+
+    .preview-details-address {
+      display: block;
+      color: #666;
+      margin-top: 3px;
+      font-size: 0.8rem;
+      line-height: 1.3;
+    }
+
+    .preview-map-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--primary-color);
+      text-decoration: none;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .preview-map-link mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
+    .preview-details-section {
+      padding: 12px 0;
+    }
+
+    .preview-details-section h4 {
+      color: var(--primary-color);
+      font-size: 0.85rem;
+      margin: 0 0 8px;
+      font-weight: 600;
+    }
+
+    .preview-details-section p {
+      color: #555;
+      line-height: 1.5;
+      margin: 0;
+      font-size: 0.85rem;
+      white-space: pre-line;
+    }
+
+    .device-phone .preview-details-section p {
+      font-size: 0.8rem;
+    }
+
+    .preview-details-spotify {
+      padding: 12px 0;
+      text-align: center;
+    }
+
+    .preview-details-spotify h4 {
+      color: var(--primary-color);
+      font-size: 0.85rem;
+      margin: 0 0 6px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .preview-details-spotify h4 mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .preview-details-spotify p {
+      color: #555;
+      font-size: 0.8rem;
+      margin: 0 0 10px;
+    }
+
+    .preview-spotify-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #1DB954;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .preview-spotify-link:hover {
+      background: #1ed760;
+      transform: scale(1.05);
+    }
+
+    .preview-spotify-link mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .preview-details-actions {
+      padding: 16px;
+      background: #f8f9fa;
+      text-align: center;
+      border-top: 1px solid #eee;
+      border-radius: 0 0 16px 16px;
+    }
+
+    .device-phone .preview-details-actions {
+      padding: 12px;
+      border-radius: 0 0 12px 12px;
+    }
+
+    .preview-rsvp-btn {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%) !important;
+      color: white !important;
+      padding: 10px 28px !important;
+      font-size: 0.95rem !important;
+      border-radius: 50px !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+      height: auto !important;
+    }
+
+    .device-phone .preview-rsvp-btn {
+      padding: 8px 24px !important;
+      font-size: 0.85rem !important;
+    }
+
+    .preview-rsvp-btn mat-icon {
+      margin-right: 6px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .preview-details-note {
+      color: #888;
+      font-size: 0.7rem;
+      margin: 10px 0 0;
+      font-style: italic;
+    }
+
+    .preview-details-content mat-divider {
+      margin: 4px 0;
+    }
+
     @media (max-width: 1100px) {
       .form-preview-layout {
         flex-direction: column;
@@ -1575,6 +2517,7 @@ export class InvitationFormComponent implements OnInit {
   isDragging = false;
   showPreview = true;
   previewDevice: 'desktop' | 'phone' = 'desktop';
+  previewShowDetails = false;
   selectedBuiltInTheme: string | null = null;
   private readonly MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -1615,7 +2558,8 @@ export class InvitationFormComponent implements OnInit {
     private invitationService: InvitationService,
     private themeService: ThemeService,
     private snackBar: MatSnackBar,
-    private clipboard: Clipboard
+    private clipboard: Clipboard,
+    private dialog: MatDialog
   ) {
     this.invitationForm = this.fb.group({
       title: ['', Validators.required],
@@ -1829,6 +2773,16 @@ export class InvitationFormComponent implements OnInit {
       other: 'event'
     };
     return icons[eventType] || 'event';
+  }
+
+  // Toggle preview details view
+  togglePreviewDetails(): void {
+    this.previewShowDetails = !this.previewShowDetails;
+  }
+
+  // Close preview details
+  closePreviewDetails(): void {
+    this.previewShowDetails = false;
   }
 
   // Preview color methods

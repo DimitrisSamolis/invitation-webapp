@@ -12,10 +12,446 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DatePipe, TitleCasePipe, CommonModule } from '@angular/common';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 import { InvitationService } from '../../services/invitation.service';
 import { GuestService } from '../../services/guest.service';
 import { Invitation } from '../../models/models';
 import { AnimationCanvasComponent, AnimationType } from '../../components/animation-canvas/animation-canvas.component';
+
+// Invitation Details Dialog Component
+@Component({
+  selector: 'app-invitation-details-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    MatDialogModule,
+    DatePipe,
+    TitleCasePipe
+  ],
+  template: `
+    <div class="details-dialog" [style.--primary-color]="data.invitation.customStyles?.primaryColor || '#667eea'"
+         [style.--accent-color]="data.invitation.customStyles?.accentColor || '#764ba2'">
+      <button mat-icon-button class="close-btn" mat-dialog-close>
+        <mat-icon>close</mat-icon>
+      </button>
+      
+      <div class="dialog-header">
+        <div class="event-badge">
+          <mat-icon>{{ getEventIcon(data.invitation.eventType) }}</mat-icon>
+          <span>{{ data.invitation.eventType | titlecase }}</span>
+        </div>
+        <h1>{{ data.invitation.title }}</h1>
+        <p class="hosted-by">Hosted by {{ data.invitation.hostName }}</p>
+      </div>
+
+      <div class="dialog-content">
+        <!-- Date & Time -->
+        <div class="main-info">
+          <div class="info-block">
+            <mat-icon>event</mat-icon>
+            <div>
+              <span class="label">Date</span>
+              <span class="value">{{ data.invitation.eventDate | date:'EEEE, MMMM d, yyyy' }}</span>
+            </div>
+          </div>
+          
+          <div class="info-block">
+            <mat-icon>schedule</mat-icon>
+            <div>
+              <span class="label">Time</span>
+              <span class="value">{{ data.invitation.eventTime }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <mat-divider></mat-divider>
+        
+        <!-- Venue -->
+        <div class="venue-section">
+          <mat-icon>location_on</mat-icon>
+          <div>
+            <span class="label">WHERE</span>
+            <span class="value venue-name">{{ data.invitation.venue }}</span>
+            <span class="address">{{ data.invitation.venueAddress }}</span>
+            @if (data.invitation.venueMapUrl) {
+              <a [href]="data.invitation.venueMapUrl" target="_blank" class="map-link">
+                <mat-icon>map</mat-icon>
+                View on Map
+              </a>
+            }
+          </div>
+        </div>
+        
+        @if (data.invitation.dressCode) {
+          <mat-divider></mat-divider>
+          <div class="info-block">
+            <mat-icon>checkroom</mat-icon>
+            <div>
+              <span class="label">Dress Code</span>
+              <span class="value">{{ data.invitation.dressCode }}</span>
+            </div>
+          </div>
+        }
+        
+        @if (data.invitation.description) {
+          <mat-divider></mat-divider>
+          <div class="description-section">
+            <h3>About This Event</h3>
+            <p>{{ data.invitation.description }}</p>
+          </div>
+        }
+        
+        @if (data.invitation.additionalInfo) {
+          <mat-divider></mat-divider>
+          <div class="additional-info">
+            <h3>Additional Information</h3>
+            <p>{{ data.invitation.additionalInfo }}</p>
+          </div>
+        }
+        
+        @if (data.invitation.spotifyPlaylistUrl) {
+          <mat-divider></mat-divider>
+          <div class="spotify-section">
+            <h3><mat-icon>library_music</mat-icon> Event Playlist</h3>
+            <p>Check out our playlist for this event!</p>
+            <a [href]="data.invitation.spotifyPlaylistUrl" target="_blank" rel="noopener" class="spotify-link">
+              <mat-icon>play_circle</mat-icon>
+              Open in Spotify
+            </a>
+          </div>
+        }
+        
+        @if (data.invitation.rsvpDeadline) {
+          <mat-divider></mat-divider>
+          <div class="deadline-section">
+            <mat-icon>timer</mat-icon>
+            <div>
+              <span class="label">Please Respond by</span>
+              <span class="value deadline">{{ data.invitation.rsvpDeadline | date:'MMMM d, yyyy' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="dialog-actions">
+        <button mat-raised-button class="rsvp-button" (click)="onRsvpClick()">
+          <mat-icon>how_to_reg</mat-icon>
+          Respond Now
+        </button>
+        
+        @if (data.invitation.hostContact || data.invitation.hostEmail) {
+          <div class="contact-info">
+            <p>Questions? Contact:</p>
+            <div class="contact-links">
+              @if (data.invitation.hostContact) {
+                <a [href]="'tel:' + data.invitation.hostContact" class="contact-link">
+                  <mat-icon>phone</mat-icon>
+                </a>
+              }
+              @if (data.invitation.hostEmail) {
+                <a [href]="'mailto:' + data.invitation.hostEmail" class="contact-link">
+                  <mat-icon>email</mat-icon>
+                </a>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  `,
+  styles: [`
+    .details-dialog {
+      padding: 0;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .details-dialog::-webkit-scrollbar {
+      display: none;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+    }
+
+    .dialog-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+      color: white;
+      padding: 40px 24px 30px;
+      text-align: center;
+    }
+
+    .event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .event-badge mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .dialog-header h1 {
+      font-size: 2rem;
+      margin: 0 0 12px;
+      font-weight: 300;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .hosted-by {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .dialog-content {
+      padding: 24px;
+      background: white;
+    }
+
+    .main-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 16px 0;
+    }
+
+    .info-block, .venue-section, .deadline-section {
+      display: flex;
+      gap: 14px;
+      padding: 16px 0;
+    }
+
+    .info-block mat-icon, .venue-section mat-icon, .deadline-section mat-icon {
+      color: var(--primary-color);
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .label {
+      display: block;
+      font-size: 0.75rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .value {
+      display: block;
+      font-size: 1.1rem;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .venue-name {
+      font-size: 1.15rem;
+    }
+
+    .address {
+      display: block;
+      color: #666;
+      margin-top: 4px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .map-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--primary-color);
+      text-decoration: none;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .map-link mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .description-section, .additional-info {
+      padding: 20px 0;
+    }
+
+    .description-section h3, .additional-info h3 {
+      color: var(--primary-color);
+      font-size: 0.95rem;
+      margin: 0 0 10px;
+      font-weight: 600;
+    }
+
+    .description-section p, .additional-info p {
+      color: #555;
+      line-height: 1.7;
+      margin: 0;
+      white-space: pre-line;
+    }
+
+    .spotify-section {
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    .spotify-section h3 {
+      color: var(--primary-color);
+      font-size: 0.95rem;
+      margin: 0 0 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .spotify-section p {
+      color: #555;
+      margin: 0 0 14px;
+    }
+
+    .spotify-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1DB954;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .spotify-link:hover {
+      background: #1ed760;
+      transform: scale(1.05);
+    }
+
+    .deadline {
+      color: #e91e63 !important;
+    }
+
+    .dialog-actions {
+      padding: 20px 24px 24px;
+      background: #f8f9fa;
+      text-align: center;
+      border-top: 1px solid #eee;
+    }
+
+    .rsvp-button {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%) !important;
+      color: white !important;
+      padding: 14px 40px !important;
+      font-size: 1.1rem !important;
+      border-radius: 50px !important;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2) !important;
+      height: auto !important;
+    }
+
+    .rsvp-button mat-icon {
+      margin-right: 8px;
+    }
+
+    .contact-info {
+      margin-top: 20px;
+    }
+
+    .contact-info p {
+      color: #888;
+      font-size: 0.85rem;
+      margin: 0 0 10px;
+    }
+
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .contact-link:hover {
+      transform: scale(1.1);
+    }
+
+    .contact-link mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    @media (max-width: 480px) {
+      .dialog-header h1 {
+        font-size: 1.6rem;
+      }
+
+      .main-info {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .dialog-content {
+        padding: 16px;
+      }
+    }
+  `]
+})
+export class InvitationDetailsDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<InvitationDetailsDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { invitation: Invitation }
+  ) { }
+
+  getEventIcon(eventType: string): string {
+    const icons: Record<string, string> = {
+      wedding: 'favorite',
+      birthday: 'cake',
+      corporate: 'business',
+      party: 'celebration',
+      other: 'event'
+    };
+    return icons[eventType] || 'event';
+  }
+
+  onRsvpClick() {
+    this.dialogRef.close('rsvp');
+  }
+}
 
 // RSVP Dialog Component
 @Component({
@@ -305,7 +741,6 @@ export class RsvpDialogComponent {
     MatDividerModule,
     MatDialogModule,
     DatePipe,
-    TitleCasePipe,
     AnimationCanvasComponent
   ],
   template: `
@@ -338,141 +773,46 @@ export class RsvpDialogComponent {
         
         <div class="overlay"></div>
         
-        <div class="invitation-content">
-          <!-- Header Section -->
-          <div class="invitation-header">
-            <div class="event-badge">
-              <mat-icon>{{ getEventIcon(invitation.eventType) }}</mat-icon>
-              <span>{{ invitation.eventType | titlecase }}</span>
-            </div>
-            <h1>{{ invitation.title }}</h1>
-            <p class="hosted-by">Hosted by {{ invitation.hostName }}</p>
-          </div>
-          
-          <!-- Main Details Card -->
-          <mat-card class="invitation-details">
-            <mat-card-content>
-              <!-- Date & Time -->
-              <div class="main-info">
-                <div class="info-block">
-                  <mat-icon>event</mat-icon>
-                  <div>
-                    <span class="label">Date</span>
-                    <span class="value">{{ invitation.eventDate | date:'EEEE, MMMM d, yyyy' }}</span>
-                  </div>
-                </div>
-                
-                <div class="info-block">
-                  <mat-icon>schedule</mat-icon>
-                  <div>
-                    <span class="label">Time</span>
-                    <span class="value">{{ invitation.eventTime }}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <mat-divider></mat-divider>
-              
-              <!-- Venue -->
-              <div class="venue-section">
-                <mat-icon>location_on</mat-icon>
-                <div>
-                  <span class="label">WHERE</span>
-                  <span class="value venue-name">{{ invitation.venue }}</span>
-                  <span class="address">{{ invitation.venueAddress }}</span>
-                  @if (invitation.venueMapUrl) {
-                    <a [href]="invitation.venueMapUrl" target="_blank" class="map-link">
-                      <mat-icon>map</mat-icon>
-                      View on Map
-                    </a>
-                  }
-                </div>
-              </div>
-              
-              @if (invitation.dressCode) {
-                <mat-divider></mat-divider>
-                <div class="info-block">
-                  <mat-icon>checkroom</mat-icon>
-                  <div>
-                    <span class="label">Dress Code</span>
-                    <span class="value">{{ invitation.dressCode }}</span>
-                  </div>
-                </div>
-              }
-              
-              @if (invitation.description) {
-                <mat-divider></mat-divider>
-                <div class="description-section">
-                  <h3>About This Event</h3>
-                  <p>{{ invitation.description }}</p>
-                </div>
-              }
-              
-              @if (invitation.additionalInfo) {
-                <mat-divider></mat-divider>
-                <div class="additional-info">
-                  <h3>Additional Information</h3>
-                  <p>{{ invitation.additionalInfo }}</p>
-                </div>
-              }
-              
-              @if (invitation.spotifyPlaylistUrl) {
-                <mat-divider></mat-divider>
-                <div class="spotify-section">
-                  <h3><mat-icon>library_music</mat-icon> Event Playlist</h3>
-                  <p>Check out our playlist for this event!</p>
-                  <a [href]="invitation.spotifyPlaylistUrl" target="_blank" rel="noopener" class="spotify-link">
-                    <mat-icon>play_circle</mat-icon>
-                    Open in Spotify
-                  </a>
-                </div>
-              }
-              
-              @if (invitation.rsvpDeadline) {
-                <mat-divider></mat-divider>
-                <div class="deadline-section">
-                  <mat-icon>timer</mat-icon>
-                  <div>
-                    <span class="label">Please Respond by</span>
-                    <span class="value deadline">{{ invitation.rsvpDeadline | date:'MMMM d, yyyy' }}</span>
-                  </div>
-                </div>
-              }
-            </mat-card-content>
-          </mat-card>
+        <!-- Floating Header -->
+        <div class="floating-header">
+          <h1>{{ invitation.title }}</h1>
+          <p class="hosted-by"> Hosted by {{ invitation.hostName }}</p>
+        </div>
 
-          <!-- RSVP Button -->
-          <div class="rsvp-cta">
-            <button mat-raised-button class="rsvp-button" (click)="openRsvpDialog()">
-              <mat-icon>how_to_reg</mat-icon>
-              Respond Now
-            </button>
-            <p class="rsvp-hint">Click to let us know if you'll be attending</p>
-          </div>
-          
-          <!-- Contact Section -->
-          @if (invitation.hostContact || invitation.hostEmail) {
-            <div class="contact-section">
-              <p>Questions? Contact the host:</p>
-              <div class="contact-info">
-                @if (invitation.hostContact) {
-                  <a [href]="'tel:' + invitation.hostContact" class="contact-link">
-                    <mat-icon>phone</mat-icon>
-                    {{ invitation.hostContact }}
-                  </a>
-                }
-                @if (invitation.hostEmail) {
-                  <a [href]="'mailto:' + invitation.hostEmail" class="contact-link">
-                    <mat-icon>email</mat-icon>
-                    {{ invitation.hostEmail }}
-                  </a>
-                }
+        <!-- Animated Envelope -->
+        <div class="envelope-container" (click)="openDetailsDialog()">
+          <div class="envelope" [class.bounce]="!envelopeClicked">
+            <div class="envelope-back"></div>
+            <div class="envelope-front">
+              <div class="envelope-flap"></div>
+              <div class="envelope-letter">
+                <div class="letter-content">
+                  <mat-icon class="letter-icon">{{ getEventIcon(invitation.eventType) }}</mat-icon>
+                  <span class="letter-text">You're Invited!</span>
+                </div>
               </div>
             </div>
-          }
+            <div class="envelope-shadow"></div>
+          </div>
+          <p class="tap-hint">
+            <mat-icon>touch_app</mat-icon>
+            Tap to open
+          </p>
+        </div>
+
+        <!-- Quick Info Pills -->
+        <div class="quick-info">
+          <div class="info-pill">
+            <mat-icon>event</mat-icon>
+            <span>{{ invitation.eventDate | date:'MMM d, yyyy' }}</span>
+          </div>
+          <div class="info-pill">
+            <mat-icon>schedule</mat-icon>
+            <span>{{ invitation.eventTime }}</span>
+          </div>
         </div>
         
-        <!-- Canvas Animation Layer (rendered in front) -->
+        <!-- Canvas Animation Layer -->
         @if (getAnimation() && getAnimation() !== 'none') {
           <app-animation-canvas 
             [animation]="getAnimationType()"
@@ -538,6 +878,10 @@ export class RsvpDialogComponent {
       background-repeat: repeat;
       background-position: center;
       position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     
     .overlay {
@@ -546,289 +890,235 @@ export class RsvpDialogComponent {
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.2);
+      background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.2) 0%,
+        rgba(0, 0, 0, 0.1) 50%,
+        rgba(0, 0, 0, 0.3) 100%
+      );
       z-index: 0;
       pointer-events: none;
     }
-    
-    .invitation-content {
+
+    /* Floating Header */
+    .floating-header {
       position: relative;
-      z-index: 1;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-    
-    .invitation-header {
+      z-index: 2;
       text-align: center;
       color: white;
       margin-bottom: 40px;
-      padding-top: 20px;
     }
-    
-    .event-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.2);
-      padding: 10px 24px;
-      border-radius: 50px;
-      font-size: 0.95rem;
-      margin-bottom: 24px;
-      backdrop-filter: blur(10px);
-    }
-    
-    .event-badge mat-icon {
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
-    }
-    
-    .invitation-header h1 {
-      font-size: 2.8rem;
-      margin: 0 0 16px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+
+    .floating-header h1 {
+      font-size: 2.5rem;
+      margin: 0 0 8px;
       font-weight: 300;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
       letter-spacing: 1px;
-      line-height: 1.2;
     }
-    
-    .hosted-by {
-      font-size: 1.2rem;
+
+    .floating-header .hosted-by {
+      font-size: 1.1rem;
       opacity: 0.9;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
       margin: 0;
     }
-    
-    .invitation-details, .rsvp-card {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      margin: 20px;
-    }
-    
-    .main-info {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      padding: 24px 0;
-    }
-    
-    .info-block, .venue-section, .deadline-section {
+
+    /* Envelope Container */
+    .envelope-container {
+      position: relative;
+      z-index: 2;
+      cursor: pointer;
       display: flex;
-      gap: 16px;
-      padding: 20px 0;
-    }
-    
-    .info-block mat-icon, .venue-section mat-icon, .deadline-section mat-icon {
-      color: var(--primary-color, #667eea);
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
-      flex-shrink: 0;
-    }
-    
-    .label {
-      display: block;
-      font-size: 0.8rem;
-      color: #888;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 6px;
-    }
-    
-    .value {
-      display: block;
-      font-size: 1.15rem;
-      color: #333;
-      font-weight: 500;
-    }
-    
-    .venue-name {
-      font-size: 1.25rem;
-    }
-    
-    .address {
-      display: block;
-      color: #666;
-      margin-top: 6px;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-    
-    .map-link {
-      display: inline-flex;
+      flex-direction: column;
       align-items: center;
-      gap: 6px;
-      color: var(--primary-color, #667eea);
-      text-decoration: none;
-      margin-top: 12px;
-      font-size: 0.9rem;
-      font-weight: 500;
     }
-    
-    .map-link mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+
+    .envelope {
+      position: relative;
+      width: 200px;
+      height: 140px;
+      perspective: 1000px;
+      transition: transform 0.3s ease;
     }
-    
-    .map-link:hover {
-      text-decoration: underline;
-    }
-    
-    .description-section, .additional-info {
-      padding: 24px 0;
-    }
-    
-    .description-section h3, .additional-info h3 {
-      color: var(--primary-color, #667eea);
-      font-size: 1rem;
-      margin: 0 0 12px;
-      font-weight: 600;
-    }
-    
-    .description-section p, .additional-info p {
-      color: #555;
-      line-height: 1.8;
-      margin: 0;
-      white-space: pre-line;
-    }
-    
-    .spotify-section {
-      padding: 24px 0;
-      text-align: center;
-    }
-    
-    .spotify-section h3 {
-      color: var(--primary-color, #667eea);
-      font-size: 1rem;
-      margin: 0 0 12px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    
-    .spotify-section p {
-      color: #555;
-      margin: 0 0 16px;
-    }
-    
-    .spotify-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #1DB954;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 25px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-    
-    .spotify-link:hover {
-      background: #1ed760;
+
+    .envelope:hover {
       transform: scale(1.05);
     }
-    
-    .deadline {
-      color: #e91e63 !important;
+
+    .envelope:active {
+      transform: scale(0.98);
     }
-    
-    /* RSVP CTA Button */
-    .rsvp-cta {
-      text-align: center;
-      padding: 30px 0;
+
+    .envelope.bounce {
+      animation: envelopeBounce 2s ease-in-out infinite;
     }
-    
-    .rsvp-button {
-      background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--accent-color, #764ba2) 100%) !important;
-      color: white !important;
-      padding: 16px 48px !important;
-      font-size: 1.2rem !important;
-      border-radius: 50px !important;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.3) !important;
-      transition: all 0.3s ease !important;
-      height: auto !important;
+
+    @keyframes envelopeBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
     }
-    
-    .rsvp-button:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.4) !important;
+
+    .envelope-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #f5f5f5 0%, #e8e8e8 100%);
+      border-radius: 8px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
     }
-    
-    .rsvp-button mat-icon {
-      margin-right: 12px;
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
+
+    .envelope-front {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%);
+      border-radius: 8px;
+      overflow: hidden;
     }
-    
-    .rsvp-hint {
-      color: white;
-      opacity: 0.9;
-      margin-top: 16px;
-      font-size: 0.95rem;
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 45px;
+      background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--accent-color, #764ba2) 100%);
+      clip-path: polygon(0 0, 50% 100%, 100% 0);
+      transform-origin: top center;
+      z-index: 2;
     }
-    
-    /* Contact Section */
-    .contact-section {
-      text-align: center;
-      color: white;
-      padding: 30px 20px;
-    }
-    
-    .contact-section > p {
-      margin: 0 0 16px;
-      opacity: 0.9;
-    }
-    
-    .contact-info {
+
+    .envelope-letter {
+      position: absolute;
+      top: 30px;
+      left: 15px;
+      right: 15px;
+      bottom: 15px;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       display: flex;
-      gap: 16px;
+      align-items: center;
       justify-content: center;
-      flex-wrap: wrap;
+      border: 2px solid rgba(0, 0, 0, 0.05);
     }
-    
-    .contact-link {
+
+    .letter-content {
+      text-align: center;
+      color: var(--primary-color, #667eea);
+    }
+
+    .letter-icon {
+      font-size: 30px;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 4px;
+    }
+
+    .letter-text {
+      display: block;
+      font-weight: 600;
+    }
+
+    .envelope-shadow {
+      position: absolute;
+      bottom: -20px;
+      left: 10%;
+      width: 80%;
+      height: 20px;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%);
+    }
+
+    .tap-hint {
       display: flex;
       align-items: center;
       gap: 8px;
       color: white;
-      text-decoration: none;
-      background: rgba(255, 255, 255, 0.2);
-      padding: 12px 24px;
-      border-radius: 50px;
-      backdrop-filter: blur(10px);
-      transition: all 0.3s;
+      font-size: 0.95rem;
+      margin-top: 30px;
+      opacity: 0.9;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+      animation: pulse 2s ease-in-out infinite;
     }
-    
-    .contact-link:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-    }
-    
-    .contact-link mat-icon {
+
+    .tap-hint mat-icon {
       font-size: 20px;
       width: 20px;
       height: 20px;
     }
-       
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Quick Info Pills */
+    .quick-info {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      gap: 16px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .info-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 12px 20px;
+      border-radius: 50px;
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .info-pill mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
     @media (max-width: 600px) {
-      .invitation-header h1 {
-        font-size: 2rem;
+      .floating-header h1 {
+        font-size: 1.8rem;
       }
-      
-      .main-info {
-        grid-template-columns: 1fr;
-        gap: 0;
+
+      .envelope {
+        width: 180px;
+        height: 126px;
       }
-      
-      .contact-info {
+
+      .envelope-flap {
+        height: 45px;
+      }
+
+      .letter-icon {
+        font-size: 25px;
+        width: 25px;
+        height: 25px;
+      }
+
+      .letter-text {
+        font-size: 0.75rem;
+      }
+
+      .quick-info {
         flex-direction: column;
         align-items: center;
+        gap: 12px;
+      }
+
+      .info-pill {
+        font-size: 0.85rem;
+        padding: 10px 18px;
       }
     }
   `]
@@ -836,6 +1126,7 @@ export class RsvpDialogComponent {
 export class InvitationViewComponent implements OnInit {
   invitation: Invitation | null = null;
   loading = true;
+  envelopeClicked = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -856,6 +1147,24 @@ export class InvitationViewComponent implements OnInit {
         }
       });
     }
+  }
+
+  openDetailsDialog() {
+    if (!this.invitation) return;
+    this.envelopeClicked = true;
+
+    const dialogRef = this.dialog.open(InvitationDetailsDialogComponent, {
+      data: { invitation: this.invitation },
+      panelClass: 'invitation-details-dialog-panel',
+      maxWidth: '95vw',
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'rsvp') {
+        this.openRsvpDialog();
+      }
+    });
   }
 
   openRsvpDialog() {
