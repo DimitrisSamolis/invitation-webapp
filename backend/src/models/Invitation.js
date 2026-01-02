@@ -76,6 +76,14 @@ const invitationSchema = new mongoose.Schema({
   maxGuests: {
     type: Number
   },
+  selectedThemeId: {
+    type: String,
+    default: ''
+  },
+  spotifyPlaylistUrl: {
+    type: String,
+    default: ''
+  },
   isActive: {
     type: Boolean,
     default: true

@@ -232,6 +232,15 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
                 </mat-form-field>
               </div>
 
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Spotify Playlist URL (Optional)</mat-label>
+                  <input matInput formControlName="spotifyPlaylistUrl" placeholder="https://open.spotify.com/playlist/...">
+                  <mat-icon matSuffix>library_music</mat-icon>
+                  <mat-hint>Share a playlist with your guests</mat-hint>
+                </mat-form-field>
+              </div>
+
               <!-- Host Info -->
               <h3 class="section-title">Host Information</h3>
               
@@ -486,6 +495,18 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
                     <div class="preview-additional-info">
                       <h3>Additional Information</h3>
                       <p>{{ invitationForm.get('additionalInfo')?.value }}</p>
+                    </div>
+                  }
+                  
+                  @if (invitationForm.get('spotifyPlaylistUrl')?.value) {
+                    <mat-divider></mat-divider>
+                    <div class="preview-spotify-section">
+                      <h3><mat-icon>library_music</mat-icon> Event Playlist</h3>
+                      <p>Check out our playlist for this event!</p>
+                      <a class="preview-spotify-link">
+                        <mat-icon>play_circle</mat-icon>
+                        Open in Spotify
+                      </a>
                     </div>
                   }
                   
@@ -1213,6 +1234,42 @@ import { AnimationCanvasComponent, AnimationType } from '../../../components/ani
       white-space: pre-line;
     }
 
+    .preview-spotify-section {
+      padding: 16px 0;
+      text-align: center;
+    }
+
+    .preview-spotify-section h3 {
+      color: var(--primary-color, #667eea);
+      font-size: 0.85rem;
+      margin: 0 0 8px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .preview-spotify-section p {
+      color: #555;
+      font-size: 0.8rem;
+      margin: 0 0 12px;
+    }
+
+    .preview-spotify-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1DB954;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
     .preview-deadline {
       color: #e91e63 !important;
     }
@@ -1403,6 +1460,8 @@ export class InvitationFormComponent implements OnInit {
       rsvpDeadline: [''],
       maxGuests: [''],
       isActive: [true],
+      selectedThemeId: [''],
+      spotifyPlaylistUrl: [''],
       customStyles: this.fb.group({
         primaryColor: ['#667eea'],
         accentColor: ['#764ba2'],
@@ -1440,6 +1499,16 @@ export class InvitationFormComponent implements OnInit {
           eventDate: new Date(invitation.eventDate),
           rsvpDeadline: invitation.rsvpDeadline ? new Date(invitation.rsvpDeadline) : null
         });
+
+        // Restore the selected built-in theme
+        if (invitation.selectedThemeId) {
+          this.selectedBuiltInTheme = invitation.selectedThemeId;
+        }
+
+        // Restore background image preview if exists
+        if (invitation.customStyles?.backgroundImage) {
+          this.imagePreview = invitation.customStyles.backgroundImage;
+        }
       },
       error: () => {
         this.snackBar.open('Failed to load invitation', 'Close', { duration: 3000 });
@@ -1622,6 +1691,7 @@ export class InvitationFormComponent implements OnInit {
       // Deselect - reset to defaults
       this.selectedBuiltInTheme = null;
       this.invitationForm.patchValue({
+        selectedThemeId: '',
         customStyles: {
           primaryColor: '#667eea',
           accentColor: '#764ba2',
@@ -1632,6 +1702,7 @@ export class InvitationFormComponent implements OnInit {
       // Select the theme
       this.selectedBuiltInTheme = theme.id;
       this.invitationForm.patchValue({
+        selectedThemeId: theme.id,
         customStyles: {
           primaryColor: theme.primaryColor,
           accentColor: theme.accentColor,

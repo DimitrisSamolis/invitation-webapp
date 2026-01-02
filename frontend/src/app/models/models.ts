@@ -9,6 +9,8 @@ export interface Invitation {
   venueMapUrl?: string;
   description: string;
   theme: string;
+  selectedThemeId?: string;
+  spotifyPlaylistUrl?: string;
   customStyles?: {
     primaryColor?: string;
     accentColor?: string;

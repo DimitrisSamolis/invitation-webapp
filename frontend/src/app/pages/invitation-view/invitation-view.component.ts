@@ -392,6 +392,18 @@ export class RsvpDialogComponent {
                 </div>
               }
               
+              @if (invitation.spotifyPlaylistUrl) {
+                <mat-divider></mat-divider>
+                <div class="spotify-section">
+                  <h3><mat-icon>library_music</mat-icon> Event Playlist</h3>
+                  <p>Check out our playlist for this event!</p>
+                  <a [href]="invitation.spotifyPlaylistUrl" target="_blank" rel="noopener" class="spotify-link">
+                    <mat-icon>play_circle</mat-icon>
+                    Open in Spotify
+                  </a>
+                </div>
+              }
+              
               @if (invitation.rsvpDeadline) {
                 <mat-divider></mat-divider>
                 <div class="deadline-section">
@@ -658,6 +670,45 @@ export class RsvpDialogComponent {
       line-height: 1.8;
       margin: 0;
       white-space: pre-line;
+    }
+    
+    .spotify-section {
+      padding: 24px 0;
+      text-align: center;
+    }
+    
+    .spotify-section h3 {
+      color: var(--primary-color, #667eea);
+      font-size: 1rem;
+      margin: 0 0 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .spotify-section p {
+      color: #555;
+      margin: 0 0 16px;
+    }
+    
+    .spotify-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #1DB954;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .spotify-link:hover {
+      background: #1ed760;
+      transform: scale(1.05);
     }
     
     .deadline {
