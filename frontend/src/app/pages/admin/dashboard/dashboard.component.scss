@@ -1,0 +1,90 @@
+.container {
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+h1 {
+  margin: 0;
+  color: #333;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 60px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+}
+
+.stat-card mat-card-content {
+  padding: 24px;
+}
+
+.stat-card mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #667eea;
+}
+
+.stat-card.active mat-icon {
+  color: #2196f3;
+}
+.stat-card.confirmed mat-icon {
+  color: #4caf50;
+}
+.stat-card.pending mat-icon {
+  color: #ff9800;
+}
+.stat-card.declined mat-icon {
+  color: #f44336;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #333;
+  margin: 8px 0;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.quick-actions h2 {
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.actions-grid {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.actions-grid a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

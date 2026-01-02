@@ -1,0 +1,81 @@
+<div class="login-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar>celebration</mat-icon>
+      <mat-card-title>Invitation App</mat-card-title>
+      <mat-card-subtitle>Admin Panel</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-tab-group [(selectedIndex)]="selectedTab">
+        <mat-tab label="Login">
+          <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email">
+              <mat-icon matSuffix>email</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Password</mat-label>
+              <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'">
+              <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+
+            @if (error) {
+            <div class="error-message">{{ error }}</div>
+            }
+
+            <button mat-raised-button color="primary" type="submit" [disabled]="loading || loginForm.invalid"
+              class="full-width">
+              @if (loading) {
+              <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+              Login
+              }
+            </button>
+          </form>
+        </mat-tab>
+
+        <mat-tab label="Register">
+          <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name">
+              <mat-icon matSuffix>person</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email">
+              <mat-icon matSuffix>email</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Password</mat-label>
+              <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'">
+              <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+
+            @if (error) {
+            <div class="error-message">{{ error }}</div>
+            }
+
+            <button mat-raised-button color="primary" type="submit" [disabled]="loading || registerForm.invalid"
+              class="full-width">
+              @if (loading) {
+              <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+              Register
+              }
+            </button>
+          </form>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -929,6 +929,7 @@ export class RsvpDialogComponent {
       position: relative;
       z-index: 2;
       cursor: pointer;
+      opacity: 0.8;
       display: flex;
       flex-direction: column;
       align-items: center;

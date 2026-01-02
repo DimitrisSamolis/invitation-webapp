@@ -1,0 +1,111 @@
+<div class="container">
+  <div class="header">
+    <h1>Guest Management</h1>
+    <a mat-button routerLink="/admin/invitations">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Invitations
+    </a>
+  </div>
+
+  @if (loading) {
+  <div class="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+  } @else if (guests.length === 0) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>people_outline</mat-icon>
+      <h2>No Guests Yet</h2>
+      <p>Guests will appear here once they respond to your invitation</p>
+    </mat-card-content>
+  </mat-card>
+  } @else {
+  <div class="stats-row">
+    <mat-card class="mini-stat confirmed">
+      <span class="count">{{ getStatusCount('confirmed') }}</span>
+      <span class="label">Confirmed</span>
+    </mat-card>
+    <mat-card class="mini-stat pending">
+      <span class="count">{{ getStatusCount('pending') }}</span>
+      <span class="label">Pending</span>
+    </mat-card>
+    <mat-card class="mini-stat declined">
+      <span class="count">{{ getStatusCount('declined') }}</span>
+      <span class="label">Declined</span>
+    </mat-card>
+  </div>
+
+  <mat-card>
+    <table mat-table [dataSource]="guests" class="full-width">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let guest">{{ guest.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="invitation">
+        <th mat-header-cell *matHeaderCellDef>Invitation</th>
+        <td mat-cell *matCellDef="let guest">
+          @if (getInvitationTitle(guest)) {
+          <a [routerLink]="['/admin/invitations']">
+            {{ getInvitationTitle(guest) }}
+          </a>
+          } @else {
+          <span class="no-invitation">-</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="numberOfGuests">
+        <th mat-header-cell *matHeaderCellDef>Guests</th>
+        <td mat-cell *matCellDef="let guest">{{ guest.numberOfGuests }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="rsvpStatus">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let guest">
+          <span class="status-chip" [class]="guest.rsvpStatus">
+            {{ guest.rsvpStatus | titlecase }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="respondedAt">
+        <th mat-header-cell *matHeaderCellDef>Responded</th>
+        <td mat-cell *matCellDef="let guest">
+          {{ guest.respondedAt ? (guest.respondedAt | date:'short') : '-' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let guest">
+          <button mat-icon-button [matMenuTriggerFor]="statusMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #statusMenu="matMenu">
+            <button mat-menu-item (click)="updateStatus(guest, 'confirmed')">
+              <mat-icon>check_circle</mat-icon>
+              Mark Confirmed
+            </button>
+            <button mat-menu-item (click)="updateStatus(guest, 'pending')">
+              <mat-icon>schedule</mat-icon>
+              Mark Pending
+            </button>
+            <button mat-menu-item (click)="updateStatus(guest, 'declined')">
+              <mat-icon>cancel</mat-icon>
+              Mark Declined
+            </button>
+            <button mat-menu-item (click)="deleteGuest(guest)" class="delete-action">
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </mat-card>
+  }
+</div>

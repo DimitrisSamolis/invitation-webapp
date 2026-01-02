@@ -1,0 +1,129 @@
+<div class="details-dialog" [style.--primary-color]="data.invitation.customStyles?.primaryColor || '#667eea'"
+  [style.--accent-color]="data.invitation.customStyles?.accentColor || '#764ba2'">
+  <button mat-icon-button class="close-btn" mat-dialog-close>
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <div class="dialog-header">
+    <div class="event-badge">
+      <mat-icon>{{ getEventIcon(data.invitation.eventType) }}</mat-icon>
+      <span>{{ data.invitation.eventType | titlecase }}</span>
+    </div>
+    <h1>{{ data.invitation.title }}</h1>
+    <p class="hosted-by">Hosted by {{ data.invitation.hostName }}</p>
+  </div>
+
+  <div class="dialog-content">
+    <!-- Date & Time -->
+    <div class="main-info">
+      <div class="info-block">
+        <mat-icon>event</mat-icon>
+        <div>
+          <span class="label">Date</span>
+          <span class="value">{{ data.invitation.eventDate | date:'EEEE, MMMM d, yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <mat-icon>schedule</mat-icon>
+        <div>
+          <span class="label">Time</span>
+          <span class="value">{{ data.invitation.eventTime }}</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Venue -->
+    <div class="venue-section">
+      <mat-icon>location_on</mat-icon>
+      <div>
+        <span class="label">WHERE</span>
+        <span class="value venue-name">{{ data.invitation.venue }}</span>
+        <span class="address">{{ data.invitation.venueAddress }}</span>
+        @if (data.invitation.venueMapUrl) {
+        <a [href]="data.invitation.venueMapUrl" target="_blank" class="map-link">
+          <mat-icon>map</mat-icon>
+          View on Map
+        </a>
+        }
+      </div>
+    </div>
+
+    @if (data.invitation.dressCode) {
+    <mat-divider></mat-divider>
+    <div class="info-block">
+      <mat-icon>checkroom</mat-icon>
+      <div>
+        <span class="label">Dress Code</span>
+        <span class="value">{{ data.invitation.dressCode }}</span>
+      </div>
+    </div>
+    }
+
+    @if (data.invitation.description) {
+    <mat-divider></mat-divider>
+    <div class="description-section">
+      <h3>About This Event</h3>
+      <p>{{ data.invitation.description }}</p>
+    </div>
+    }
+
+    @if (data.invitation.additionalInfo) {
+    <mat-divider></mat-divider>
+    <div class="additional-info">
+      <h3>Additional Information</h3>
+      <p>{{ data.invitation.additionalInfo }}</p>
+    </div>
+    }
+
+    @if (data.invitation.spotifyPlaylistUrl) {
+    <mat-divider></mat-divider>
+    <div class="spotify-section">
+      <h3><mat-icon>library_music</mat-icon> Event Playlist</h3>
+      <p>Check out our playlist for this event!</p>
+      <a [href]="data.invitation.spotifyPlaylistUrl" target="_blank" rel="noopener" class="spotify-link">
+        <mat-icon>play_circle</mat-icon>
+        Open in Spotify
+      </a>
+    </div>
+    }
+
+    @if (data.invitation.rsvpDeadline) {
+    <mat-divider></mat-divider>
+    <div class="deadline-section">
+      <mat-icon>timer</mat-icon>
+      <div>
+        <span class="label">Please Respond by</span>
+        <span class="value deadline">{{ data.invitation.rsvpDeadline | date:'MMMM d, yyyy' }}</span>
+      </div>
+    </div>
+    }
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-raised-button class="rsvp-button" (click)="onRsvpClick()">
+      <mat-icon>how_to_reg</mat-icon>
+      Respond Now
+    </button>
+
+    @if (data.invitation.hostContact || data.invitation.hostEmail) {
+    <div class="contact-info">
+      <p>Questions? Contact:</p>
+      <div class="contact-links">
+        @if (data.invitation.hostContact) {
+        <a [href]="'tel:' + data.invitation.hostContact" class="contact-link">
+          <mat-icon>phone</mat-icon>
+        </a>
+        }
+        @if (data.invitation.hostEmail) {
+        <a [href]="'mailto:' + data.invitation.hostEmail" class="contact-link">
+          <mat-icon>email</mat-icon>
+        </a>
+        }
+      </div>
+    </div>
+    }
+  </div>
+</div>

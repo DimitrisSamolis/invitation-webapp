@@ -22,20 +22,8 @@ interface Particle {
   selector: 'app-animation-canvas',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <canvas #animationCanvas class="animation-canvas"></canvas>
-  `,
-  styles: [`
-    .animation-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 10;
-    }
-  `]
+  templateUrl: './animation-canvas.component.html',
+  styleUrl: './animation-canvas.component.scss'
 })
 export class AnimationCanvasComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   @ViewChild('animationCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;

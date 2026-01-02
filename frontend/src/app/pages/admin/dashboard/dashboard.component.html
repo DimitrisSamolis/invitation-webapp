@@ -1,0 +1,83 @@
+<div class="container">
+  <div class="header">
+    <h1>Admin Dashboard</h1>
+    <a mat-raised-button color="primary" routerLink="/admin/invitations/new">
+      <mat-icon>add</mat-icon>
+      New Invitation
+    </a>
+  </div>
+
+  @if (loading) {
+  <div class="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+  } @else {
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <mat-icon>mail</mat-icon>
+        <div class="stat-value">{{ stats.totalInvitations }}</div>
+        <div class="stat-label">Total Invitations</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card active">
+      <mat-card-content>
+        <mat-icon>visibility</mat-icon>
+        <div class="stat-value">{{ stats.activeInvitations }}</div>
+        <div class="stat-label">Active Invitations</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <mat-icon>people</mat-icon>
+        <div class="stat-value">{{ stats.totalGuests }}</div>
+        <div class="stat-label">Total Guests</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card confirmed">
+      <mat-card-content>
+        <mat-icon>check_circle</mat-icon>
+        <div class="stat-value">{{ stats.confirmedGuests }}</div>
+        <div class="stat-label">Confirmed</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card pending">
+      <mat-card-content>
+        <mat-icon>schedule</mat-icon>
+        <div class="stat-value">{{ stats.pendingResponses }}</div>
+        <div class="stat-label">Pending</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card declined">
+      <mat-card-content>
+        <mat-icon>cancel</mat-icon>
+        <div class="stat-value">{{ stats.declinedGuests }}</div>
+        <div class="stat-label">Declined</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="actions-grid">
+      <a mat-stroked-button routerLink="/admin/invitations">
+        <mat-icon>mail</mat-icon>
+        Manage Invitations
+      </a>
+      <a mat-stroked-button routerLink="/admin/guests">
+        <mat-icon>people</mat-icon>
+        View All Guests
+      </a>
+      <a mat-stroked-button routerLink="/admin/themes">
+        <mat-icon>palette</mat-icon>
+        Customize Themes
+      </a>
+    </div>
+  </div>
+  }
+</div>

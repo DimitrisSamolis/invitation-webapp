@@ -1,0 +1,74 @@
+@if (loading) {
+<div class="loading">
+  <mat-spinner diameter="50"></mat-spinner>
+  <p>Loading invitation...</p>
+</div>
+} @else if (!invitation) {
+<div class="error-page">
+  <div class="error-content">
+    <mat-icon>error_outline</mat-icon>
+    <h1>Invitation Not Found</h1>
+    <p>The invitation you're looking for doesn't exist or has been removed.</p>
+  </div>
+</div>
+} @else if (!invitation.isActive) {
+<div class="error-page">
+  <div class="error-content">
+    <mat-icon>lock_outline</mat-icon>
+    <h1>Invitation Not Available</h1>
+    <p>This invitation is not currently active.</p>
+  </div>
+</div>
+} @else {
+<div class="invitation-page" [style.--primary-color]="getPrimaryColor()" [style.--accent-color]="getAccentColor()"
+  [style.background-image]="getBackgroundImage()">
+
+  <div class="overlay"></div>
+
+  <!-- Floating Header -->
+  <div class="floating-header">
+    <h1>{{ invitation.title }}</h1>
+    <p class="hosted-by"> Hosted by {{ invitation.hostName }}</p>
+  </div>
+
+  <!-- Animated Envelope -->
+  <div class="envelope-container" (click)="openDetailsDialog()">
+    <div class="envelope" [class.bounce]="!envelopeClicked">
+      <div class="envelope-back"></div>
+      <div class="envelope-front">
+        <div class="envelope-flap"></div>
+        <div class="envelope-letter">
+          <div class="letter-content">
+            <mat-icon class="letter-icon">{{ getEventIcon(invitation.eventType) }}</mat-icon>
+            <span class="letter-text">You're Invited!</span>
+          </div>
+        </div>
+      </div>
+      <div class="envelope-shadow"></div>
+    </div>
+    <p class="tap-hint">
+      <mat-icon>touch_app</mat-icon>
+      Tap to open
+    </p>
+  </div>
+
+  <!-- Quick Info Pills -->
+  <div class="quick-info">
+    <div class="info-pill">
+      <mat-icon>event</mat-icon>
+      <span>{{ invitation.eventDate | date:'MMM d, yyyy' }}</span>
+    </div>
+    <div class="info-pill">
+      <mat-icon>schedule</mat-icon>
+      <span>{{ invitation.eventTime }}</span>
+    </div>
+  </div>
+
+  <!-- Canvas Animation Layer -->
+  @if (getAnimation() && getAnimation() !== 'none') {
+  <app-animation-canvas [animation]="getAnimationType()" [primaryColor]="getPrimaryColor()"
+    [accentColor]="getAccentColor()">
+  </app-animation-canvas>
+  }
+</div>
+}

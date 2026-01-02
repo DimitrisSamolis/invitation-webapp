@@ -1,0 +1,72 @@
+<div class="rsvp-dialog">
+  @if (submitted) {
+  <div class="success-content">
+    <mat-icon class="success-icon">{{ rsvpResponse === 'confirmed' ? 'celebration' : 'thumb_up' }}</mat-icon>
+    <h2>Thank You, {{ submittedName }}!</h2>
+    @if (rsvpResponse === 'confirmed') {
+    <p>We're excited to see you at the event!</p>
+    } @else {
+    <p>We're sorry you can't make it. Thank you for letting us know.</p>
+    }
+    <button mat-raised-button color="primary" mat-dialog-close class="close-btn">
+      <mat-icon>check</mat-icon>
+      Close
+    </button>
+  </div>
+  } @else {
+  <div class="dialog-header">
+    <mat-icon>how_to_reg</mat-icon>
+    <div>
+      <h2>RSVP</h2>
+      <p>Let us know if you'll be attending</p>
+    </div>
+    <button mat-icon-button mat-dialog-close class="close-icon">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="rsvpForm" (ngSubmit)="submit()">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Your Name</mat-label>
+      <input matInput formControlName="name" placeholder="Enter your full name">
+      @if (rsvpForm.get('name')?.hasError('required') && rsvpForm.get('name')?.touched) {
+      <mat-error>Please enter your name</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="response-section">
+      <label class="response-label">Will you attend?</label>
+      <mat-radio-group formControlName="rsvpStatus" class="response-options">
+        <mat-radio-button value="confirmed" color="primary">
+          <span class="response-option">
+            <mat-icon>check_circle</mat-icon>
+            Yes, I'll be there!
+          </span>
+        </mat-radio-button>
+        <mat-radio-button value="declined" color="primary">
+          <span class="response-option">
+            <mat-icon>cancel</mat-icon>
+            Sorry, I can't make it
+          </span>
+        </mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Message for the Host (Optional)</mat-label>
+      <textarea matInput formControlName="message" rows="3" placeholder="Any message or well wishes..."></textarea>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="submitting || rsvpForm.invalid"
+      class="submit-btn">
+      @if (submitting) {
+      <mat-spinner diameter="24"></mat-spinner>
+      } @else {
+      <ng-container>
+        Send My Response
+      </ng-container>
+      }
+    </button>
+  </form>
+  }
+</div>

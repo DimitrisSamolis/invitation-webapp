@@ -7,23 +7,8 @@ import { filter } from 'rxjs/operators';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, HeaderComponent],
-  template: `
-    @if (!isPublicRoute) {
-      <app-header></app-header>
-    }
-    <main [class.public-page]="isPublicRoute">
-      <router-outlet></router-outlet>
-    </main>
-  `,
-  styles: [`
-    main {
-      min-height: calc(100vh - 64px);
-      background: #fafafa;
-    }
-    main.public-page {
-      min-height: 100vh;
-    }
-  `]
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'Invitation Web App';

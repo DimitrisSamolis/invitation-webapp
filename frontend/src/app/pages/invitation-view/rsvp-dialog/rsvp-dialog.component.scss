@@ -1,0 +1,133 @@
+.rsvp-dialog {
+  padding: 24px;
+  min-width: 300px;
+  max-width: 450px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  .rsvp-dialog {
+    padding: 20px;
+    min-width: 280px;
+    max-width: 90vw;
+  }
+
+  .dialog-header > mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .dialog-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .success-icon {
+    font-size: 60px;
+    width: 60px;
+    height: 60px;
+  }
+}
+
+.dialog-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.dialog-header > mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #667eea;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.dialog-header p {
+  margin: 4px 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.close-icon {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.response-section {
+  margin: 16px 0 24px;
+}
+
+.response-label {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.response-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.response-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.response-option mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 50px;
+  font-size: 1rem;
+  margin-top: 16px;
+  border-radius: 25px;
+}
+
+.success-content {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.success-icon {
+  font-size: 80px;
+  width: 80px;
+  height: 80px;
+  color: #667eea;
+}
+
+.success-content h2 {
+  margin: 20px 0 8px;
+  color: #333;
+}
+
+.success-content p {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.close-btn {
+  border-radius: 25px;
+  padding: 0 32px;
+}

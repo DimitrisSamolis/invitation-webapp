@@ -1,0 +1,6 @@
+@if (!isPublicRoute) {
+<app-header></app-header>
+}
+<main [class.public-page]="isPublicRoute">
+  <router-outlet></router-outlet>
+</main>

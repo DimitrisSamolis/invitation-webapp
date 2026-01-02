@@ -1,0 +1,527 @@
+<div class="page-container">
+  @if (createdInvitation) {
+  <!-- Success Card with Shareable Link -->
+  <mat-card class="success-card">
+    <mat-card-content>
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      <h2>Invitation Created Successfully!</h2>
+      <p>Share this link with your guests:</p>
+
+      <div class="link-box">
+        <input type="text" [value]="getShareableLink()" readonly #linkInput>
+        <button mat-icon-button (click)="copyLink()" matTooltip="Copy Link">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+
+      <div class="action-buttons">
+        <a mat-stroked-button [href]="getShareableLink()" target="_blank">
+          <mat-icon>visibility</mat-icon>
+          Preview Invitation
+        </a>
+        <button mat-stroked-button (click)="copyLink()">
+          <mat-icon>share</mat-icon>
+          Copy Link
+        </button>
+        <a mat-raised-button color="primary" routerLink="/admin/invitations">
+          <mat-icon>list</mat-icon>
+          View All Invitations
+        </a>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  } @else {
+  <div class="form-preview-layout" [class.preview-active]="showPreview">
+    <!-- Form Section -->
+    <div class="form-section">
+      <mat-card>
+        <mat-card-header>
+          <mat-icon mat-card-avatar>{{ isEdit ? 'edit' : 'add' }}</mat-icon>
+          <mat-card-title>{{ isEdit ? 'Edit' : 'Create' }} Invitation</mat-card-title>
+          <button mat-icon-button class="preview-toggle" (click)="togglePreview()"
+            [matTooltip]="showPreview ? 'Hide Preview' : 'Show Preview'">
+            <mat-icon>{{ showPreview ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="invitationForm" (ngSubmit)="onSubmit()">
+            <!-- Basic Info -->
+            <h3 class="section-title">Basic Information</h3>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Event Title</mat-label>
+                <input matInput formControlName="title" placeholder="e.g., John & Jane's Wedding">
+                <mat-hint>This will be the main heading of your invitation</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Event Type</mat-label>
+                <mat-select formControlName="eventType" (selectionChange)="onEventTypeChange($event.value)">
+                  <mat-option value="wedding">💒 Wedding</mat-option>
+                  <mat-option value="birthday">🎂 Birthday</mat-option>
+                  <mat-option value="corporate">💼 Corporate</mat-option>
+                  <mat-option value="party">🎉 Party</mat-option>
+                  <mat-option value="other">📅 Other</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <!-- Theme Selection -->
+            <h3 class="section-title">Choose a Theme</h3>
+            <div class="theme-grid">
+              @for (theme of getThemesForEventType(); track theme.id) {
+              <div class="theme-card" [class.selected]="selectedBuiltInTheme === theme.id"
+                (click)="selectBuiltInTheme(theme)">
+                <div class="theme-preview" [style.background]="theme.gradient">
+                  <div class="theme-animation-preview">
+                    @if (theme.animation === 'confetti') {
+                    <span class="mini-confetti">🎊</span>
+                    } @else if (theme.animation === 'hearts') {
+                    <span class="mini-hearts">💕</span>
+                    } @else if (theme.animation === 'balloons') {
+                    <span class="mini-balloons">🎈</span>
+                    } @else if (theme.animation === 'sparkles') {
+                    <span class="mini-sparkles">✨</span>
+                    } @else if (theme.animation === 'stars') {
+                    <span class="mini-stars">⭐</span>
+                    } @else if (theme.animation === 'fireworks') {
+                    <span class="mini-fireworks">🎆</span>
+                    }
+                  </div>
+                </div>
+                <div class="theme-info">
+                  <span class="theme-name">{{ theme.name }}</span>
+                  <span class="theme-desc">{{ theme.description }}</span>
+                </div>
+                @if (selectedBuiltInTheme === theme.id) {
+                <mat-icon class="theme-check">check_circle</mat-icon>
+                }
+              </div>
+              }
+            </div>
+
+            <!-- Date & Time -->
+            <h3 class="section-title">Date & Time</h3>
+
+            <div class="form-row two-col">
+              <mat-form-field appearance="outline">
+                <mat-label>Event Date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="eventDate">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Event Time</mat-label>
+                <input matInput formControlName="eventTime" placeholder="e.g., 6:00 PM">
+              </mat-form-field>
+            </div>
+
+            <!-- Venue -->
+            <h3 class="section-title">Address Details</h3>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Location Name</mat-label>
+                <input matInput formControlName="venue" placeholder="e.g., Grand Ballroom, Hilton Hotel">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Address</mat-label>
+                <textarea matInput formControlName="venueAddress" rows="2"
+                  placeholder="Full address for your guests"></textarea>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Google Maps Link (Optional)</mat-label>
+                <input matInput formControlName="venueMapUrl" placeholder="https://maps.google.com/...">
+                <mat-icon matSuffix>map</mat-icon>
+                <mat-hint>Paste a Google Maps link to help guests find the venue</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <!-- Event Description -->
+            <h3 class="section-title">Event Details</h3>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Event Description</mat-label>
+                <textarea matInput formControlName="description" rows="4"
+                  placeholder="Tell your guests about the event, what to expect, special notes..."></textarea>
+                <mat-hint>This will appear on the invitation page</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row two-col">
+              <mat-form-field appearance="outline">
+                <mat-label>Dress Code (Optional)</mat-label>
+                <input matInput formControlName="dressCode" placeholder="e.g., Black Tie, Casual, Smart Casual">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Max Guests Per RSVP</mat-label>
+                <input matInput type="number" formControlName="maxGuests" placeholder="e.g., 2">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Additional Information (Optional)</mat-label>
+                <textarea matInput formControlName="additionalInfo" rows="3"
+                  placeholder="Parking info, gift registry, special instructions..."></textarea>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Spotify Playlist URL (Optional)</mat-label>
+                <input matInput formControlName="spotifyPlaylistUrl"
+                  placeholder="https://open.spotify.com/playlist/...">
+                <mat-icon matSuffix>library_music</mat-icon>
+                <mat-hint>Share a playlist with your guests</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <!-- Host Info -->
+            <h3 class="section-title">Host Information</h3>
+
+            <div class="form-row two-col">
+              <mat-form-field appearance="outline">
+                <mat-label>Host Name</mat-label>
+                <input matInput formControlName="hostName" placeholder="Who is hosting this event?">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Host Phone (Optional)</mat-label>
+                <input matInput formControlName="hostContact" placeholder="Contact number">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Host Email (Optional)</mat-label>
+                <input matInput formControlName="hostEmail" type="email" placeholder="Email for questions">
+              </mat-form-field>
+            </div>
+
+            <!-- Respond Settings -->
+            <h3 class="section-title">Respond Settings</h3>
+
+            <div class="form-row two-col">
+              <mat-form-field appearance="outline">
+                <mat-label>Respond Deadline</mat-label>
+                <input matInput [matDatepicker]="rsvpPicker" formControlName="rsvpDeadline">
+                <mat-datepicker-toggle matSuffix [for]="rsvpPicker"></mat-datepicker-toggle>
+                <mat-datepicker #rsvpPicker></mat-datepicker>
+                <mat-hint>Guests won't be able to respond after this date</mat-hint>
+              </mat-form-field>
+
+              <div class="toggle-field">
+                <mat-slide-toggle formControlName="isActive" color="primary">
+                  Active (visible to guests)
+                </mat-slide-toggle>
+                <p class="toggle-hint">Turn off to hide the invitation temporarily</p>
+              </div>
+            </div>
+
+            <!-- Custom Styling -->
+            <mat-expansion-panel class="custom-styles-panel">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>palette</mat-icon>
+                  Customize (Optional)
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <div formGroupName="customStyles" class="custom-styles-content">
+                <div class="form-row two-col">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Primary Color</mat-label>
+                    <input matInput formControlName="primaryColor" type="color">
+                    <mat-hint>Main color for headers</mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Accent Color</mat-label>
+                    <input matInput formControlName="accentColor" type="color">
+                    <mat-hint>Secondary color for gradients</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <div class="background-image-section">
+                    <label class="section-label">Background Image (Optional)</label>
+
+                    <div class="image-source-tabs">
+                      <button type="button" mat-stroked-button [class.active]="imageSourceMode === 'url'"
+                        (click)="setImageSourceMode('url')">
+                        <mat-icon>link</mat-icon>
+                        URL
+                      </button>
+                      <button type="button" mat-stroked-button [class.active]="imageSourceMode === 'upload'"
+                        (click)="setImageSourceMode('upload')">
+                        <mat-icon>upload_file</mat-icon>
+                        Upload
+                      </button>
+                    </div>
+
+                    @if (imageSourceMode === 'url') {
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Image URL</mat-label>
+                      <input matInput formControlName="backgroundImage" placeholder="https://example.com/image.jpg">
+                      <mat-icon matSuffix>image</mat-icon>
+                    </mat-form-field>
+                    } @else {
+                    <div class="upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)"
+                      (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.drag-over]="isDragging">
+                      <input type="file" #fileInput accept="image/*" (change)="onFileSelected($event)"
+                        style="display: none">
+                      <mat-icon>cloud_upload</mat-icon>
+                      <p>Drag & drop an image here or click to browse</p>
+                      <span class="hint">Supports JPG, PNG, GIF (max 5MB)</span>
+                    </div>
+                    }
+
+                    @if (imagePreview || invitationForm.get('customStyles.backgroundImage')?.value) {
+                    <div class="image-preview">
+                      <img [src]="imagePreview || invitationForm.get('customStyles.backgroundImage')?.value"
+                        alt="Background preview">
+                      <button type="button" mat-icon-button class="remove-image" (click)="removeBackgroundImage()"
+                        matTooltip="Remove image">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </mat-expansion-panel>
+
+            <div class="button-row">
+              <a mat-button routerLink="/admin/invitations">Cancel</a>
+              <button mat-stroked-button type="button" (click)="togglePreview()" class="preview-btn-mobile">
+                <mat-icon>visibility</mat-icon>
+                {{ showPreview ? 'Hide' : 'Show' }} Preview
+              </button>
+              <button mat-raised-button color="primary" type="submit" [disabled]="saving || invitationForm.invalid">
+                @if (saving) {
+                <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                {{ isEdit ? 'Update' : 'Create' }} Invitation
+                }
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Preview Section -->
+    @if (showPreview) {
+    <div class="preview-section">
+      <div class="preview-header">
+        <mat-icon>visibility</mat-icon>
+        <span>Live Preview</span>
+        <div class="device-selector">
+          <button mat-icon-button [class.active]="previewDevice === 'desktop'" (click)="setPreviewDevice('desktop')"
+            matTooltip="Desktop / Laptop">
+            <mat-icon>laptop</mat-icon>
+          </button>
+          <button mat-icon-button [class.active]="previewDevice === 'phone'" (click)="setPreviewDevice('phone')"
+            matTooltip="Mobile">
+            <mat-icon>smartphone</mat-icon>
+          </button>
+        </div>
+        <button mat-icon-button (click)="togglePreview()" matTooltip="Close Preview">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="preview-container" [class]="'preview-container device-' + previewDevice">
+        <div class="device-frame" [class]="'device-frame-' + previewDevice">
+          <div class="device-screen">
+            <div class="invitation-preview" [class]="'invitation-preview ' + getSelectedTheme()?.animation"
+              [style.--primary-color]="getPreviewPrimaryColor()" [style.--accent-color]="getPreviewAccentColor()"
+              [style.background-image]="getPreviewBackgroundImage()">
+
+              <div class="preview-overlay"></div>
+
+              @if (!previewShowDetails) {
+              <!-- Envelope View -->
+              <!-- Floating Header -->
+              <div class="preview-floating-header">
+                <h1>{{ invitationForm.get('title')?.value || 'Your Event Title' }}</h1>
+                <p class="preview-hosted-by">{{ invitationForm.get('hostName')?.value || 'Host Name' }}</p>
+              </div>
+
+              <!-- Animated Envelope -->
+              <div class="preview-envelope-container" (click)="togglePreviewDetails()">
+                <div class="preview-envelope bounce">
+                  <div class="preview-envelope-back"></div>
+                  <div class="preview-envelope-front">
+                    <div class="preview-envelope-flap"></div>
+                    <div class="preview-envelope-letter">
+                      <div class="preview-letter-content">
+                        <mat-icon
+                          class="preview-letter-icon">{{ getEventIcon(invitationForm.get('eventType')?.value) }}</mat-icon>
+                        <span class="preview-letter-text">You're Invited!</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="preview-envelope-shadow"></div>
+                </div>
+                <p class="preview-tap-hint">
+                  <mat-icon>touch_app</mat-icon>
+                  Tap to open
+                </p>
+              </div>
+
+              <!-- Quick Info Pills -->
+              <div class="preview-quick-info">
+                <div class="preview-info-pill">
+                  <mat-icon>event</mat-icon>
+                  <span>{{ invitationForm.get('eventDate')?.value | date:'MMM d, yyyy' }}</span>
+                </div>
+                <div class="preview-info-pill">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ invitationForm.get('eventTime')?.value || 'Time' }}</span>
+                </div>
+              </div>
+              } @else {
+              <!-- Inline Details View -->
+              <div class="preview-details-inline">
+                <button mat-icon-button class="preview-details-close" (click)="closePreviewDetails()">
+                  <mat-icon>close</mat-icon>
+                </button>
+
+                <div class="preview-details-header">
+                  <div class="preview-event-badge">
+                    <mat-icon>{{ getEventIcon(invitationForm.get('eventType')?.value) }}</mat-icon>
+                    <span>{{ invitationForm.get('eventType')?.value || 'Event' }}</span>
+                  </div>
+                  <h2>{{ invitationForm.get('title')?.value || 'Your Event Title' }}</h2>
+                  <p>Hosted by {{ invitationForm.get('hostName')?.value || 'Host Name' }}</p>
+                </div>
+
+                <div class="preview-details-content">
+                  <div class="preview-details-row">
+                    <mat-icon>event</mat-icon>
+                    <div>
+                      <span class="preview-details-label">Date</span>
+                      <span
+                        class="preview-details-value">{{ invitationForm.get('eventDate')?.value | date:'EEEE, MMMM d, yyyy' }}</span>
+                    </div>
+                  </div>
+
+                  <div class="preview-details-row">
+                    <mat-icon>schedule</mat-icon>
+                    <div>
+                      <span class="preview-details-label">Time</span>
+                      <span
+                        class="preview-details-value">{{ invitationForm.get('eventTime')?.value || 'Time TBD' }}</span>
+                    </div>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="preview-details-row">
+                    <mat-icon>location_on</mat-icon>
+                    <div>
+                      <span class="preview-details-label">Where</span>
+                      <span class="preview-details-value">{{ invitationForm.get('venue')?.value || 'Venue TBD' }}</span>
+                      @if (invitationForm.get('venueAddress')?.value) {
+                      <span class="preview-details-address">{{ invitationForm.get('venueAddress')?.value }}</span>
+                      }
+                      @if (invitationForm.get('venueMapUrl')?.value) {
+                      <a class="preview-map-link">
+                        <mat-icon>map</mat-icon>
+                        View on Map
+                      </a>
+                      }
+                    </div>
+                  </div>
+
+                  @if (invitationForm.get('dressCode')?.value) {
+                  <mat-divider></mat-divider>
+                  <div class="preview-details-row">
+                    <mat-icon>checkroom</mat-icon>
+                    <div>
+                      <span class="preview-details-label">Dress Code</span>
+                      <span class="preview-details-value">{{ invitationForm.get('dressCode')?.value }}</span>
+                    </div>
+                  </div>
+                  }
+
+                  @if (invitationForm.get('description')?.value) {
+                  <mat-divider></mat-divider>
+                  <div class="preview-details-section">
+                    <h4>About This Event</h4>
+                    <p>{{ invitationForm.get('description')?.value }}</p>
+                  </div>
+                  }
+
+                  @if (invitationForm.get('additionalInfo')?.value) {
+                  <mat-divider></mat-divider>
+                  <div class="preview-details-section">
+                    <h4>Additional Information</h4>
+                    <p>{{ invitationForm.get('additionalInfo')?.value }}</p>
+                  </div>
+                  }
+
+                  @if (invitationForm.get('spotifyPlaylistUrl')?.value) {
+                  <mat-divider></mat-divider>
+                  <div class="preview-details-spotify">
+                    <h4><mat-icon>library_music</mat-icon> Event Playlist</h4>
+                    <p>Check out our playlist for this event!</p>
+                    <a class="preview-spotify-link">
+                      <mat-icon>play_circle</mat-icon>
+                      Open in Spotify
+                    </a>
+                  </div>
+                  }
+
+                  @if (invitationForm.get('rsvpDeadline')?.value) {
+                  <mat-divider></mat-divider>
+                  <div class="preview-details-row deadline">
+                    <mat-icon>timer</mat-icon>
+                    <div>
+                      <span class="preview-details-label">Please Respond by</span>
+                      <span
+                        class="preview-details-value">{{ invitationForm.get('rsvpDeadline')?.value | date:'MMMM d, yyyy' }}</span>
+                    </div>
+                  </div>
+                  }
+                </div>
+
+                <div class="preview-details-actions">
+                  <button mat-raised-button class="preview-rsvp-btn">
+                    <mat-icon>how_to_reg</mat-icon>
+                    Respond Now
+                  </button>
+                  <p class="preview-details-note">This is how guests will see the details</p>
+                </div>
+              </div>
+              }
+
+              <!-- Canvas Animation Layer -->
+              @if (getSelectedTheme()?.animation) {
+              <app-animation-canvas [animation]="getSelectedTheme()!.animation!"
+                [primaryColor]="getPreviewPrimaryColor()" [accentColor]="getPreviewAccentColor()">
+              </app-animation-canvas>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+  }
+</div>

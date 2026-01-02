@@ -1,0 +1,114 @@
+<div class="details-dialog" [style.--primary-color]="data.primaryColor || '#667eea'"
+  [style.--accent-color]="data.accentColor || '#764ba2'">
+  <button mat-icon-button class="close-btn" mat-dialog-close>
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <div class="dialog-header">
+    <div class="event-badge">
+      <mat-icon>{{ getEventIcon(data.eventType) }}</mat-icon>
+      <span>{{ data.eventType | titlecase }}</span>
+    </div>
+    <h1>{{ data.title || 'Your Event Title' }}</h1>
+    <p class="hosted-by">Hosted by {{ data.hostName || 'Host Name' }}</p>
+  </div>
+
+  <div class="dialog-content">
+    <!-- Date & Time -->
+    <div class="main-info">
+      <div class="info-block">
+        <mat-icon>event</mat-icon>
+        <div>
+          <span class="label">Date</span>
+          <span class="value">{{ data.eventDate | date:'EEEE, MMMM d, yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <mat-icon>schedule</mat-icon>
+        <div>
+          <span class="label">Time</span>
+          <span class="value">{{ data.eventTime || 'Time TBD' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Venue -->
+    <div class="venue-section">
+      <mat-icon>location_on</mat-icon>
+      <div>
+        <span class="label">WHERE</span>
+        <span class="value venue-name">{{ data.venue || 'Venue TBD' }}</span>
+        @if (data.venueAddress) {
+        <span class="address">{{ data.venueAddress }}</span>
+        }
+        @if (data.venueMapUrl) {
+        <a [href]="data.venueMapUrl" target="_blank" class="map-link">
+          <mat-icon>map</mat-icon>
+          View on Map
+        </a>
+        }
+      </div>
+    </div>
+
+    @if (data.dressCode) {
+    <mat-divider></mat-divider>
+    <div class="info-block">
+      <mat-icon>checkroom</mat-icon>
+      <div>
+        <span class="label">Dress Code</span>
+        <span class="value">{{ data.dressCode }}</span>
+      </div>
+    </div>
+    }
+
+    @if (data.description) {
+    <mat-divider></mat-divider>
+    <div class="description-section">
+      <h3>About This Event</h3>
+      <p>{{ data.description }}</p>
+    </div>
+    }
+
+    @if (data.additionalInfo) {
+    <mat-divider></mat-divider>
+    <div class="additional-info">
+      <h3>Additional Information</h3>
+      <p>{{ data.additionalInfo }}</p>
+    </div>
+    }
+
+    @if (data.spotifyPlaylistUrl) {
+    <mat-divider></mat-divider>
+    <div class="spotify-section">
+      <h3><mat-icon>library_music</mat-icon> Event Playlist</h3>
+      <p>Check out our playlist for this event!</p>
+      <a [href]="data.spotifyPlaylistUrl" target="_blank" rel="noopener" class="spotify-link">
+        <mat-icon>play_circle</mat-icon>
+        Open in Spotify
+      </a>
+    </div>
+    }
+
+    @if (data.rsvpDeadline) {
+    <mat-divider></mat-divider>
+    <div class="deadline-section">
+      <mat-icon>timer</mat-icon>
+      <div>
+        <span class="label">Please Respond by</span>
+        <span class="value deadline">{{ data.rsvpDeadline | date:'MMMM d, yyyy' }}</span>
+      </div>
+    </div>
+    }
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-raised-button class="rsvp-button" mat-dialog-close>
+      <mat-icon>how_to_reg</mat-icon>
+      Respond Now
+    </button>
+    <p class="preview-note">This is a preview - guests will see this when they tap the envelope</p>
+  </div>
+</div>
