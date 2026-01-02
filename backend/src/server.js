@@ -33,7 +33,12 @@ app.use('/api/themes', themeRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    mongodb: mongoStatus
+  });
 });
 
 // Error handling middleware
@@ -141,17 +146,32 @@ async function seedDefaultThemes() {
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/invitation-webapp';
 
-mongoose.connect(MONGODB_URI)
+// Start server immediately (Render needs this to not timeout)
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// Connect to MongoDB in the background
+mongoose.connect(MONGODB_URI, {
+  serverSelectionTimeoutMS: 30000, // 30 second timeout
+  socketTimeoutMS: 45000,
+})
   .then(async () => {
     console.log('Connected to MongoDB');
     await seedDefaultThemes();
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
   })
   .catch((error) => {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
+    console.error('MongoDB connection error:', error.message);
+    // Don't exit - allow health checks to still work
   });
+
+// Handle MongoDB connection events
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected. Attempting to reconnect...');
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('MongoDB reconnected');
+});
 
 module.exports = app;
