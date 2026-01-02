@@ -174,6 +174,60 @@ import { Invitation } from '../../../models/models';
     th.mat-header-cell {
       font-weight: 600;
     }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      mat-card {
+        overflow-x: auto;
+      }
+
+      table {
+        min-width: 600px;
+      }
+
+      .mat-mdc-row, .mat-mdc-header-row {
+        min-height: 48px;
+      }
+
+      .mat-mdc-cell, .mat-mdc-header-cell {
+        padding: 8px 12px !important;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 1.3rem;
+      }
+
+      .empty-state {
+        padding: 40px 16px;
+      }
+
+      .empty-state mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+      }
+    }
   `]
 })
 export class InvitationsComponent implements OnInit {

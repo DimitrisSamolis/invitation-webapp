@@ -232,6 +232,88 @@ import { Guest } from '../../../models/models';
     .delete-action {
       color: #f44336;
     }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .stats-row {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .mini-stat {
+        padding: 12px;
+      }
+
+      .mini-stat .count {
+        font-size: 1.5rem;
+      }
+
+      mat-card {
+        overflow-x: auto;
+      }
+
+      table {
+        min-width: 500px;
+      }
+
+      .mat-mdc-cell, .mat-mdc-header-cell {
+        padding: 8px 10px !important;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 1.3rem;
+      }
+
+      .stats-row {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .mini-stat {
+        flex: 1 1 30%;
+        min-width: 90px;
+        padding: 10px 8px;
+      }
+
+      .mini-stat .count {
+        font-size: 1.3rem;
+      }
+
+      .mini-stat .label {
+        font-size: 0.75rem;
+      }
+
+      .empty-state {
+        padding: 40px 16px;
+      }
+
+      .empty-state mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+      }
+    }
   `]
 })
 export class GuestsComponent implements OnInit {

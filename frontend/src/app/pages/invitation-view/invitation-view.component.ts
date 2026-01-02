@@ -64,7 +64,6 @@ import { AnimationCanvasComponent, AnimationType } from '../../components/animat
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Your Name</mat-label>
             <input matInput formControlName="name" placeholder="Enter your full name">
-            <mat-icon matPrefix>person</mat-icon>
             @if (rsvpForm.get('name')?.hasError('required') && rsvpForm.get('name')?.touched) {
               <mat-error>Please enter your name</mat-error>
             }
@@ -91,7 +90,6 @@ import { AnimationCanvasComponent, AnimationType } from '../../components/animat
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Message for the Host (Optional)</mat-label>
             <textarea matInput formControlName="message" rows="3" placeholder="Any message or well wishes..."></textarea>
-            <mat-icon matPrefix>message</mat-icon>
           </mat-form-field>
 
           <button mat-raised-button color="primary" type="submit" 
@@ -112,8 +110,34 @@ import { AnimationCanvasComponent, AnimationType } from '../../components/animat
   styles: [`
     .rsvp-dialog {
       padding: 24px;
-      min-width: 350px;
+      min-width: 300px;
       max-width: 450px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 480px) {
+      .rsvp-dialog {
+        padding: 20px;
+        min-width: 280px;
+        max-width: 90vw;
+      }
+
+      .dialog-header > mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+      }
+
+      .dialog-header h2 {
+        font-size: 1.25rem;
+      }
+
+      .success-icon {
+        font-size: 60px;
+        width: 60px;
+        height: 60px;
+      }
     }
     
     .dialog-header {

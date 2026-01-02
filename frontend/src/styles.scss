@@ -91,3 +91,40 @@ body {
   --primary-color: #b71c1c;
   --accent-color: #ffcdd2;
 }
+
+// RSVP Dialog responsive panel
+.rsvp-dialog-panel {
+  max-width: 95vw !important;
+
+  .mat-mdc-dialog-surface {
+    border-radius: 16px !important;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 92vw !important;
+  }
+}
+
+// Mobile responsive utilities
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .card-container {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 12px;
+  }
+
+  .card-container {
+    padding: 12px;
+    gap: 12px;
+  }
+}
