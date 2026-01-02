@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -73,9 +73,17 @@ import { Guest } from '../../../models/models';
               <td mat-cell *matCellDef="let guest">{{ guest.name }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="email">
-              <th mat-header-cell *matHeaderCellDef>Email</th>
-              <td mat-cell *matCellDef="let guest">{{ guest.email }}</td>
+            <ng-container matColumnDef="invitation">
+              <th mat-header-cell *matHeaderCellDef>Invitation</th>
+              <td mat-cell *matCellDef="let guest">
+                @if (getInvitationTitle(guest)) {
+                  <a [routerLink]="['/admin/invitations']">
+                    {{ getInvitationTitle(guest) }}
+                  </a>
+                } @else {
+                  <span class="no-invitation">-</span>
+                }
+              </td>
             </ng-container>
 
             <ng-container matColumnDef="numberOfGuests">
@@ -227,16 +235,16 @@ import { Guest } from '../../../models/models';
   `]
 })
 export class GuestsComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private guestService = inject(GuestService);
+  private snackBar = inject(MatSnackBar);
+
   guests: Guest[] = [];
   loading = true;
   invitationId: string | null = null;
-  displayedColumns = ['name', 'email', 'numberOfGuests', 'rsvpStatus', 'respondedAt', 'actions'];
+  displayedColumns = ['name', 'invitation', 'numberOfGuests', 'rsvpStatus', 'respondedAt', 'actions'];
 
-  constructor(
-    private route: ActivatedRoute,
-    private guestService: GuestService,
-    private snackBar: MatSnackBar
-  ) { }
+  constructor() { }
 
   ngOnInit() {
     this.invitationId = this.route.snapshot.paramMap.get('invitationId');
@@ -264,12 +272,20 @@ export class GuestsComponent implements OnInit {
     return this.guests.filter(g => g.rsvpStatus === status).length;
   }
 
+  getInvitationTitle(guest: Guest): string {
+    if (!guest.invitationId) return '';
+    if (typeof guest.invitationId === 'string') return '';
+    return guest.invitationId.title || '';
+  }
+
   updateStatus(guest: Guest, status: Guest['rsvpStatus']) {
     this.guestService.updateRsvpStatus(guest._id!, status).subscribe({
       next: (updated) => {
         const index = this.guests.findIndex(g => g._id === guest._id);
         if (index !== -1) {
           this.guests[index] = updated;
+          // Reassign array to trigger change detection
+          this.guests = [...this.guests];
         }
         this.snackBar.open('Status updated', 'Close', { duration: 2000 });
       },

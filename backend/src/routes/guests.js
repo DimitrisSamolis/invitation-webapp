@@ -152,7 +152,7 @@ router.patch('/:id/status', auth, async (req, res) => {
         respondedAt: new Date()
       },
       { new: true }
-    );
+    ).populate('invitationId', 'title');
     
     if (!guest) {
       return res.status(404).json({ message: 'Guest not found' });

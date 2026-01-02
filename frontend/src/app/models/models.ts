@@ -31,7 +31,7 @@ export interface Invitation {
 
 export interface Guest {
   _id?: string;
-  invitationId: string;
+  invitationId: string | { _id: string; title: string };
   name: string;
   email: string;
   phone?: string;
