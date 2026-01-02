@@ -52,18 +52,6 @@
     </p>
   </div>
 
-  <!-- Quick Info Pills -->
-  <div class="quick-info">
-    <div class="info-pill">
-      <mat-icon>event</mat-icon>
-      <span>{{ invitation.eventDate | date:'MMM d, yyyy' }}</span>
-    </div>
-    <div class="info-pill">
-      <mat-icon>schedule</mat-icon>
-      <span>{{ invitation.eventTime }}</span>
-    </div>
-  </div>
-
   <!-- Canvas Animation Layer -->
   @if (getAnimation() && getAnimation() !== 'none') {
   <app-animation-canvas [animation]="getAnimationType()" [primaryColor]="getPrimaryColor()"

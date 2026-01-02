@@ -493,11 +493,23 @@ mat-form-field {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 100px 0 40px;
+
+  app-animation-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
 }
 
 .device-phone .invitation-preview {
-  padding: 16px 16px 32px;
+  padding: 60px 16px 32px;
 }
 
 .preview-overlay {
@@ -1146,57 +1158,6 @@ mat-form-field {
   }
   50% {
     opacity: 0.5;
-  }
-}
-
-/* Quick Info Pills */
-.preview-quick-info {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  gap: 12px;
-  margin-top: 30px;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 0 16px;
-}
-
-.device-phone .preview-quick-info {
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.preview-info-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 10px 16px;
-  border-radius: 50px;
-  color: white;
-  font-size: 0.85rem;
-  font-weight: 500;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-}
-
-.device-phone .preview-info-pill {
-  padding: 8px 12px;
-  font-size: 0.75rem;
-  gap: 5px;
-
-  mat-icon {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
   }
 }
 

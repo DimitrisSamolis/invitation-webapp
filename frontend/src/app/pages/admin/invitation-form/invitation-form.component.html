@@ -382,18 +382,6 @@
                   Tap to open
                 </p>
               </div>
-
-              <!-- Quick Info Pills -->
-              <div class="preview-quick-info">
-                <div class="preview-info-pill">
-                  <mat-icon>event</mat-icon>
-                  <span>{{ invitationForm.get('eventDate')?.value | date:'MMM d, yyyy' }}</span>
-                </div>
-                <div class="preview-info-pill">
-                  <mat-icon>schedule</mat-icon>
-                  <span>{{ invitationForm.get('eventTime')?.value || 'Time' }}</span>
-                </div>
-              </div>
               } @else {
               <!-- Inline Details View -->
               <div class="preview-details-inline">
