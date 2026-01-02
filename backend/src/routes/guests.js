@@ -6,10 +6,14 @@ const { auth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Get all guests (admin)
+// Get all guests (admin - only for user's invitations)
 router.get('/', auth, async (req, res) => {
   try {
-    const guests = await Guest.find()
+    // Get only invitations created by the logged-in user
+    const userInvitations = await Invitation.find({ createdBy: req.user._id }).select('_id');
+    const userInvitationIds = userInvitations.map(inv => inv._id);
+
+    const guests = await Guest.find({ invitationId: { $in: userInvitationIds } })
       .populate('invitationId', 'title')
       .sort({ createdAt: -1 });
     res.json(guests);
@@ -21,6 +25,12 @@ router.get('/', auth, async (req, res) => {
 // Get guests by invitation
 router.get('/invitation/:invitationId', auth, async (req, res) => {
   try {
+    // Verify the invitation belongs to the logged-in user
+    const invitation = await Invitation.findOne({ _id: req.params.invitationId, createdBy: req.user._id });
+    if (!invitation) {
+      return res.status(404).json({ message: 'Invitation not found' });
+    }
+
     const guests = await Guest.find({ invitationId: req.params.invitationId })
       .sort({ createdAt: -1 });
     res.json(guests);
@@ -36,6 +46,13 @@ router.get('/:id', auth, async (req, res) => {
     if (!guest) {
       return res.status(404).json({ message: 'Guest not found' });
     }
+
+    // Verify the guest's invitation belongs to the logged-in user
+    const invitation = await Invitation.findOne({ _id: guest.invitationId._id, createdBy: req.user._id });
+    if (!invitation) {
+      return res.status(404).json({ message: 'Guest not found' });
+    }
+
     res.json(guest);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -115,6 +132,12 @@ router.post('/', auth, [
       return res.status(400).json({ errors: errors.array() });
     }
 
+    // Verify the invitation belongs to the logged-in user
+    const invitation = await Invitation.findOne({ _id: req.body.invitationId, createdBy: req.user._id });
+    if (!invitation) {
+      return res.status(404).json({ message: 'Invitation not found' });
+    }
+
     const guest = new Guest(req.body);
     await guest.save();
     res.status(201).json(guest);
@@ -126,15 +149,23 @@ router.post('/', auth, [
 // Update guest
 router.put('/:id', auth, async (req, res) => {
   try {
+    // First find the guest to verify ownership
+    const existingGuest = await Guest.findById(req.params.id);
+    if (!existingGuest) {
+      return res.status(404).json({ message: 'Guest not found' });
+    }
+
+    // Verify the guest's invitation belongs to the logged-in user
+    const invitation = await Invitation.findOne({ _id: existingGuest.invitationId, createdBy: req.user._id });
+    if (!invitation) {
+      return res.status(404).json({ message: 'Guest not found' });
+    }
+
     const guest = await Guest.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
-    
-    if (!guest) {
-      return res.status(404).json({ message: 'Guest not found' });
-    }
     
     res.json(guest);
   } catch (error) {
@@ -145,6 +176,18 @@ router.put('/:id', auth, async (req, res) => {
 // Update RSVP status
 router.patch('/:id/status', auth, async (req, res) => {
   try {
+    // First find the guest to verify ownership
+    const existingGuest = await Guest.findById(req.params.id);
+    if (!existingGuest) {
+      return res.status(404).json({ message: 'Guest not found' });
+    }
+
+    // Verify the guest's invitation belongs to the logged-in user
+    const invitation = await Invitation.findOne({ _id: existingGuest.invitationId, createdBy: req.user._id });
+    if (!invitation) {
+      return res.status(404).json({ message: 'Guest not found' });
+    }
+
     const guest = await Guest.findByIdAndUpdate(
       req.params.id,
       { 
@@ -153,10 +196,6 @@ router.patch('/:id/status', auth, async (req, res) => {
       },
       { new: true }
     ).populate('invitationId', 'title');
-    
-    if (!guest) {
-      return res.status(404).json({ message: 'Guest not found' });
-    }
     
     res.json(guest);
   } catch (error) {
@@ -167,11 +206,19 @@ router.patch('/:id/status', auth, async (req, res) => {
 // Delete guest
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const guest = await Guest.findByIdAndDelete(req.params.id);
-    
-    if (!guest) {
+    // First find the guest to verify ownership
+    const existingGuest = await Guest.findById(req.params.id);
+    if (!existingGuest) {
       return res.status(404).json({ message: 'Guest not found' });
     }
+
+    // Verify the guest's invitation belongs to the logged-in user
+    const invitation = await Invitation.findOne({ _id: existingGuest.invitationId, createdBy: req.user._id });
+    if (!invitation) {
+      return res.status(404).json({ message: 'Guest not found' });
+    }
+
+    await Guest.findByIdAndDelete(req.params.id);
     
     res.json({ message: 'Guest deleted' });
   } catch (error) {

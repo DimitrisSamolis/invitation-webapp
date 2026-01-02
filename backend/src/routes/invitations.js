@@ -9,12 +9,16 @@ const router = express.Router();
 // Get dashboard stats
 router.get('/stats', auth, async (req, res) => {
   try {
-    const totalInvitations = await Invitation.countDocuments();
-    const activeInvitations = await Invitation.countDocuments({ isActive: true });
-    const totalGuests = await Guest.countDocuments();
-    const confirmedGuests = await Guest.countDocuments({ rsvpStatus: 'confirmed' });
-    const pendingResponses = await Guest.countDocuments({ rsvpStatus: 'pending' });
-    const declinedGuests = await Guest.countDocuments({ rsvpStatus: 'declined' });
+    // Get only invitations created by the logged-in user
+    const userInvitations = await Invitation.find({ createdBy: req.user._id }).select('_id');
+    const userInvitationIds = userInvitations.map(inv => inv._id);
+
+    const totalInvitations = await Invitation.countDocuments({ createdBy: req.user._id });
+    const activeInvitations = await Invitation.countDocuments({ createdBy: req.user._id, isActive: true });
+    const totalGuests = await Guest.countDocuments({ invitationId: { $in: userInvitationIds } });
+    const confirmedGuests = await Guest.countDocuments({ invitationId: { $in: userInvitationIds }, rsvpStatus: 'confirmed' });
+    const pendingResponses = await Guest.countDocuments({ invitationId: { $in: userInvitationIds }, rsvpStatus: 'pending' });
+    const declinedGuests = await Guest.countDocuments({ invitationId: { $in: userInvitationIds }, rsvpStatus: 'declined' });
 
     res.json({
       totalInvitations,
@@ -29,10 +33,10 @@ router.get('/stats', auth, async (req, res) => {
   }
 });
 
-// Get all invitations
-router.get('/', async (req, res) => {
+// Get all invitations for the logged-in user
+router.get('/', auth, async (req, res) => {
   try {
-    const invitations = await Invitation.find()
+    const invitations = await Invitation.find({ createdBy: req.user._id })
       .populate('theme')
       .sort({ createdAt: -1 });
     res.json(invitations);
@@ -116,8 +120,9 @@ router.put('/:id', auth, async (req, res) => {
       delete req.body.theme;
     }
 
-    const invitation = await Invitation.findByIdAndUpdate(
-      req.params.id,
+    // Only update if the invitation belongs to the logged-in user
+    const invitation = await Invitation.findOneAndUpdate(
+      { _id: req.params.id, createdBy: req.user._id },
       req.body,
       { new: true, runValidators: true }
     );
@@ -135,8 +140,9 @@ router.put('/:id', auth, async (req, res) => {
 // Toggle active status
 router.patch('/:id/toggle', auth, async (req, res) => {
   try {
-    const invitation = await Invitation.findByIdAndUpdate(
-      req.params.id,
+    // Only toggle if the invitation belongs to the logged-in user
+    const invitation = await Invitation.findOneAndUpdate(
+      { _id: req.params.id, createdBy: req.user._id },
       { isActive: req.body.isActive },
       { new: true }
     );
@@ -154,7 +160,8 @@ router.patch('/:id/toggle', auth, async (req, res) => {
 // Delete invitation
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const invitation = await Invitation.findByIdAndDelete(req.params.id);
+    // Only delete if the invitation belongs to the logged-in user
+    const invitation = await Invitation.findOneAndDelete({ _id: req.params.id, createdBy: req.user._id });
     
     if (!invitation) {
       return res.status(404).json({ message: 'Invitation not found' });
