@@ -1,0 +1,18 @@
+[build]
+  # Directory to change to before starting build
+  base = "frontend"
+  # Build command
+  command = "npm run build"
+  # Directory with the production files
+  publish = "dist/invitation-webapp/browser"
+
+# Redirects for Angular SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variables (set in Netlify dashboard)
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
