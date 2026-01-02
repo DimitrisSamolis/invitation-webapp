@@ -95,6 +95,22 @@ h1 {
   color: #f44336;
 }
 
+.guest-message {
+  font-size: 0.85rem;
+  color: #555;
+  cursor: pointer;
+  max-width: 150px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.no-message {
+  color: #aaa;
+  font-style: italic;
+}
+
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
   .container {

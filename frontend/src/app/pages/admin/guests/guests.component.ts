@@ -8,7 +8,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { DatePipe, TitleCasePipe } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { DatePipe, TitleCasePipe, SlicePipe } from '@angular/common';
 import { GuestService } from '../../../services/guest.service';
 import { Guest } from '../../../models/models';
 
@@ -25,8 +26,10 @@ import { Guest } from '../../../models/models';
     MatMenuModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatTooltipModule,
     DatePipe,
-    TitleCasePipe
+    TitleCasePipe,
+    SlicePipe
   ],
   templateUrl: './guests.component.html',
   styleUrl: './guests.component.scss'
@@ -39,7 +42,7 @@ export class GuestsComponent implements OnInit {
   guests: Guest[] = [];
   loading = true;
   invitationId: string | null = null;
-  displayedColumns = ['name', 'invitation', 'numberOfGuests', 'rsvpStatus', 'respondedAt', 'actions'];
+  displayedColumns = ['name', 'invitation', 'numberOfGuests', 'rsvpStatus', 'message', 'respondedAt', 'actions'];
 
   constructor() { }
 
