@@ -46,7 +46,10 @@
 }
 
 .invitation-page {
+  height: 100vh;
   min-height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
   background: linear-gradient(
     135deg,
     var(--primary-color, #667eea) 0%,
@@ -61,7 +64,7 @@
   align-items: center;
   justify-content: space-between;
   box-sizing: border-box;
-  padding: 100px 0 40px;
+  padding: 80px 20px 30px;
 
   app-animation-canvas {
     position: absolute;
@@ -263,26 +266,50 @@
 }
 
 @media (max-width: 600px) {
+  .invitation-page {
+    padding: 60px 15px 20px;
+  }
+
+  .floating-header {
+    margin-bottom: 30px;
+  }
+
   .floating-header h1 {
     font-size: 1.8rem;
+    margin: 0 0 4px;
+  }
+
+  .floating-header .hosted-by {
+    font-size: 1rem;
   }
 
   .envelope {
-    width: 180px;
-    height: 126px;
+    width: 160px;
+    height: 112px;
   }
 
   .envelope-flap {
-    height: 45px;
+    height: 40px;
   }
 
   .letter-icon {
-    font-size: 25px;
-    width: 25px;
-    height: 25px;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
   }
 
   .letter-text {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+  }
+
+  .tap-hint {
+    margin-top: 20px;
+    font-size: 0.9rem;
+  }
+
+  .tap-hint mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
   }
 }
