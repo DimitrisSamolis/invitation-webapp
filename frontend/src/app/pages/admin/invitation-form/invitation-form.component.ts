@@ -149,7 +149,13 @@ export class InvitationFormComponent implements OnInit {
         primaryColor: ['#667eea'],
         accentColor: ['#764ba2'],
         backgroundImage: [''],
-        animation: ['none']
+        animation: ['none'],
+        titleFont: ['Pacifico'],
+        titleSize: ['2.5'],
+        titleColor: ['#ffffff'],
+        subtitleFont: ['Roboto'],
+        subtitleSize: ['1.1'],
+        subtitleColor: ['#ffffff']
       })
     });
   }
@@ -364,6 +370,33 @@ export class InvitationFormComponent implements OnInit {
       return `url('${bgImage}')`;
     }
     return 'none';
+  }
+
+  // Preview text styling methods
+  getPreviewTitleFont(): string {
+    return this.invitationForm.get('customStyles.titleFont')?.value || 'Pacifico';
+  }
+
+  getPreviewTitleSize(): string {
+    const value = this.invitationForm.get('customStyles.titleSize')?.value;
+    return value ? String(value) : '2.5';
+  }
+
+  getPreviewTitleColor(): string {
+    return this.invitationForm.get('customStyles.titleColor')?.value || '#ffffff';
+  }
+
+  getPreviewSubtitleFont(): string {
+    return this.invitationForm.get('customStyles.subtitleFont')?.value || 'Roboto';
+  }
+
+  getPreviewSubtitleSize(): string {
+    const value = this.invitationForm.get('customStyles.subtitleSize')?.value;
+    return value ? String(value) : '1.1';
+  }
+
+  getPreviewSubtitleColor(): string {
+    return this.invitationForm.get('customStyles.subtitleColor')?.value || '#ffffff';
   }
 
   // Get themes for current event type

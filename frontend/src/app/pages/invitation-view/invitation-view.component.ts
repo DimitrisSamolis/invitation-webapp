@@ -121,4 +121,31 @@ export class InvitationViewComponent implements OnInit {
     }
     return 'none';
   }
+
+  // Text styling methods
+  getTitleFont(): string {
+    return this.invitation?.customStyles?.titleFont || 'Pacifico';
+  }
+
+  getTitleSize(): string {
+    const size = this.invitation?.customStyles?.titleSize || '2.5';
+    return `${size}rem`;
+  }
+
+  getTitleColor(): string {
+    return this.invitation?.customStyles?.titleColor || '#ffffff';
+  }
+
+  getSubtitleFont(): string {
+    return this.invitation?.customStyles?.subtitleFont || 'Roboto';
+  }
+
+  getSubtitleSize(): string {
+    const size = this.invitation?.customStyles?.subtitleSize || '1.1';
+    return `${size}rem`;
+  }
+
+  getSubtitleColor(): string {
+    return this.invitation?.customStyles?.subtitleColor || '#ffffff';
+  }
 }

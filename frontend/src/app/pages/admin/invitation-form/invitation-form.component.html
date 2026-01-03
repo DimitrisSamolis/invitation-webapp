@@ -242,6 +242,7 @@
               </mat-expansion-panel-header>
 
               <div formGroupName="customStyles" class="custom-styles-content">
+                <h4 class="customize-subsection">Background Colors</h4>
                 <div class="form-row two-col">
                   <mat-form-field appearance="outline">
                     <mat-label>Primary Color</mat-label>
@@ -253,6 +254,65 @@
                     <mat-label>Accent Color</mat-label>
                     <input matInput formControlName="accentColor" type="color">
                     <mat-hint>Secondary color for gradients</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <h4 class="customize-subsection">Title Text Styling</h4>
+                <div class="form-row two-col">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Title Font</mat-label>
+                    <mat-select formControlName="titleFont">
+                      <mat-option value="Pacifico"> Pacifico (Playful)</mat-option>
+                      <mat-option value="Dancing Script"> Dancing Script (Elegant)</mat-option>
+                      <mat-option value="Satisfy"> Satisfy (Casual)</mat-option>
+                      <mat-option value="Great Vibes"> Great Vibes (Script)</mat-option>
+                      <mat-option value="Yellowtail"> Yellowtail (Fun)</mat-option>
+                      <mat-option value="Cookie"> Cookie (Cute)</mat-option>
+                      <mat-option value="Lobster"> Lobster (Bold)</mat-option>
+                      <mat-option value="Roboto"> Roboto (Modern)</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Title Size (rem)</mat-label>
+                    <input matInput formControlName="titleSize" type="number" step="0.1" min="1" max="5">
+                    <mat-hint>Default: 2.5rem</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Title Color</mat-label>
+                    <input matInput formControlName="titleColor" type="color">
+                    <mat-hint>Color for the main event title</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <h4 class="customize-subsection">Subtitle Text Styling</h4>
+                <div class="form-row two-col">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Subtitle Font</mat-label>
+                    <mat-select formControlName="subtitleFont">
+                      <mat-option value="Roboto"> Roboto (Modern)</mat-option>
+                      <mat-option value="Pacifico"> Pacifico (Playful)</mat-option>
+                      <mat-option value="Dancing Script"> Dancing Script (Elegant)</mat-option>
+                      <mat-option value="Satisfy"> Satisfy (Casual)</mat-option>
+                      <mat-option value="Great Vibes"> Great Vibes (Script)</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Subtitle Size (rem)</mat-label>
+                    <input matInput formControlName="subtitleSize" type="number" step="0.1" min="0.5" max="3">
+                    <mat-hint>Default: 1.1rem</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Subtitle Color</mat-label>
+                    <input matInput formControlName="subtitleColor" type="color">
+                    <mat-hint>Color for the hosted by subtitle</mat-hint>
                   </mat-form-field>
                 </div>
 
@@ -356,9 +416,19 @@
               @if (!previewShowDetails) {
               <!-- Envelope View -->
               <!-- Floating Header -->
-              <div class="preview-floating-header">
-                <h1>{{ invitationForm.get('title')?.value || 'Your Event Title' }}</h1>
-                <p class="preview-hosted-by">{{ invitationForm.get('hostName')?.value || 'Host Name' }}</p>
+              <div class="preview-floating-header"
+                [ngStyle]="{
+                  '--title-font': getPreviewTitleFont(),
+                  '--title-size': getPreviewTitleSize() + 'rem',
+                  '--title-color': getPreviewTitleColor(),
+                  '--subtitle-font': getPreviewSubtitleFont(),
+                  '--subtitle-size': getPreviewSubtitleSize() + 'rem',
+                  '--subtitle-color': getPreviewSubtitleColor()
+                }">
+                <h1>{{ invitationForm.get('title')?.value || ' Your Amazing Event! ' }}</h1>
+                <p class="preview-hosted-by"> Hosted by
+                  {{ invitationForm.get('hostName')?.value || 'Your Name' }}
+                </p>
               </div>
 
               <!-- Animated Envelope -->
