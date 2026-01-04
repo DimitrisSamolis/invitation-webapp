@@ -6,7 +6,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 34px;
 }
 
 h1 {
@@ -24,7 +24,7 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 20px;
-  margin-bottom: 40px;
+  margin-top: 40px;
 }
 
 .stat-card {
@@ -72,9 +72,13 @@ h1 {
   font-size: 0.9rem;
 }
 
+.quick-actions {
+  margin-bottom: 60px;
+}
+
 .quick-actions h2 {
   color: #333;
-  margin-bottom: 16px;
+  margin-bottom: 40px;
 }
 
 .actions-grid {

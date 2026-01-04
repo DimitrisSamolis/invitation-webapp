@@ -12,6 +12,24 @@
     <mat-spinner diameter="50"></mat-spinner>
   </div>
   } @else {
+  <div class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="actions-grid">
+      <a mat-stroked-button routerLink="/admin/invitations">
+        <mat-icon>mail</mat-icon>
+        Manage Invitations
+      </a>
+      <a mat-stroked-button routerLink="/admin/guests">
+        <mat-icon>people</mat-icon>
+        View All Guests
+      </a>
+      <a mat-stroked-button routerLink="/admin/themes">
+        <mat-icon>palette</mat-icon>
+        Customize Themes
+      </a>
+    </div>
+  </div>
+  <h2>Statistics Overview</h2>
   <div class="stats-grid">
     <mat-card class="stat-card">
       <mat-card-content>
@@ -60,24 +78,6 @@
         <div class="stat-label">Declined</div>
       </mat-card-content>
     </mat-card>
-  </div>
-
-  <div class="quick-actions">
-    <h2>Quick Actions</h2>
-    <div class="actions-grid">
-      <a mat-stroked-button routerLink="/admin/invitations">
-        <mat-icon>mail</mat-icon>
-        Manage Invitations
-      </a>
-      <a mat-stroked-button routerLink="/admin/guests">
-        <mat-icon>people</mat-icon>
-        View All Guests
-      </a>
-      <a mat-stroked-button routerLink="/admin/themes">
-        <mat-icon>palette</mat-icon>
-        Customize Themes
-      </a>
-    </div>
   </div>
   }
 </div>
